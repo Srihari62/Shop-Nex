@@ -25,7 +25,7 @@ export class NotFoundError extends AppError {
 }
 
 //Validation Error (react-hook-form, joi, etc.)
-class ValidationError extends AppError {
+export class ValidationError extends AppError {
   constructor(message = "Validation Error", details?: any) {
     super(message, 400, true, details);
   }
