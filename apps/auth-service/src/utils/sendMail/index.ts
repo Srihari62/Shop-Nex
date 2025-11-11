@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import ejs, { Template } from "ejs";
+import ejs from "ejs";
 import path from "path";
 
 dotenv.config();
