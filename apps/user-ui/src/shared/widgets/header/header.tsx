@@ -2,6 +2,7 @@ import Link from "next/link";
 import React from "react";
 import { HeartPlus, Search, ShoppingCart } from "lucide-react";
 import { ProfileIcon } from "apps/user-ui/src/assets/svgs/profile-icon";
+import HeaderBottom from "./header-bottom";
 const Header = () => {
   return (
     <div className="w-full bg-white">
@@ -21,7 +22,7 @@ const Header = () => {
             <Search color="#fff" />
           </div>
         </div>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-8 pb-2">
           <div className="flex items-center gap-2">
             <Link
               href={"/login"}
@@ -51,6 +52,7 @@ const Header = () => {
         </div>
       </div>
       <div className="border-b border-b-[#99999938]"></div>
+      <HeaderBottom />
     </div>
   );
 };
