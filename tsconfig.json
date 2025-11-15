@@ -16,9 +16,6 @@
       "path": "./apps/api-gateway"
     },
     {
-      "path": "./libs/user-ui"
-    },
-    {
       "path": "./apps/user-ui"
     }
   ]

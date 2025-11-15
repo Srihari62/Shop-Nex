@@ -6,8 +6,7 @@ import { Request, Response, NextFunction } from "express";
 import prisma from "@packages/libs/prisma";
 // import { parse } from "path";
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
 export const validateRegistrationData = (
   data: any,
   userType: "user" | "seller"

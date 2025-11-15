@@ -1,7 +1,12 @@
 import React from "react";
+import Login from "./(routes)/login/page";
 
 const Page = () => {
-  return <div>Page</div>;
+  return (
+    <div>
+      <Login />
+    </div>
+  );
 };
 
 export default Page;

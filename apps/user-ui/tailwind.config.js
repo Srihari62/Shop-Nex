@@ -20,8 +20,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        Roboto: ["var(---font-roboto)"],
-        Poppins: ["var(---font-poppins)"],
+        Roboto: ["var(--font-roboto)"],
+        Poppins: ["var(--font-poppins)"],
       },
     },
   },
