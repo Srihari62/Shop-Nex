@@ -4,7 +4,8 @@ import Login from "./(routes)/login/page";
 const Page = () => {
   return (
     <div>
-      <Login />
+      {/* <Login /> */}
+      <p>HOME</p>
     </div>
   );
 };
