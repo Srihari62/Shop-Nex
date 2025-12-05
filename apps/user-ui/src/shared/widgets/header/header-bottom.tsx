@@ -2,6 +2,7 @@
 
 import { ProfileIcon } from "apps/user-ui/src/assets/svgs/profile-icon";
 import { navItems } from "apps/user-ui/src/configs/constants";
+import useUser from "apps/user-ui/src/hooks/useUser";
 import {
   AlignLeft,
   ChevronDownIcon,
@@ -14,6 +15,7 @@ import React, { useEffect, useState } from "react";
 function HeaderBottom() {
   const [show, setshow] = useState(false);
   const [isSticky, setisSticky] = useState(false);
+  const { user } = useUser();
 
   //Track Scroll
   useEffect(() => {
