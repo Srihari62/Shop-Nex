@@ -54,7 +54,10 @@ const Header = () => {
                 </Link>
                 <Link href={"/login"}>
                   <span className="block font medium"> Hello,</span>
-                  <span className="block font-semibold"> Sign In</span>
+                  <span className="block font-semibold">
+                    {" "}
+                    {isLoading ? "..." : "Sign In"}
+                  </span>
                 </Link>
               </>
             )}
