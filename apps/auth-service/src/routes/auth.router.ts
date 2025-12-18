@@ -1,11 +1,14 @@
 import express, { Router } from "express";
 import {
+  createShop,
   getUser,
   loginUser,
   refreshToken,
+  registerSeller,
   resetUserPassword,
   userForgotPassword,
   userRegistration,
+  verifySellerOtp,
   verifyUserForgotPassword,
   verifyUserOtp,
 } from "../controller/auth.controller";
@@ -21,5 +24,10 @@ router.get("/logged-in-user", isAuthenticated, getUser);
 router.post("/forgot-password-user", userForgotPassword);
 router.post("/reset-password-user", resetUserPassword);
 router.post("/verify-forgot-password-user", verifyUserForgotPassword);
+
+//seller
+router.post("/seller-registration", registerSeller);
+router.post("/verify-seller", verifySellerOtp);
+router.post("/create-shop", createShop);
 
 export default router;

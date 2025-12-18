@@ -25,11 +25,11 @@ export const userRegistration = async (
 
     const { name, email } = req.body;
 
-    const existinguser = await prisma.users.findUnique({
+    const existinguUser = await prisma.users.findUnique({
       where: { email },
     });
 
-    if (existinguser) {
+    if (existinguUser) {
       return next(new ValidationError("User with this email already exists"));
     }
 
@@ -58,10 +58,10 @@ export const verifyUserOtp = async (
         new ValidationError("Email, OTP, password and name are required")
       );
     }
-    const existinguser = await prisma.users.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
-    if (existinguser) {
+    if (existingUser) {
       return next(new ValidationError("User with this email already exists"));
     }
     await verifyOtp(email, otp, next);
@@ -248,5 +248,119 @@ export const resetUserPassword = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+//register a new seller
+export const registerSeller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    validateRegistrationData(req.body, "seller");
+
+    const { name, email } = req.body;
+
+    const existingSeller = await prisma.sellers.findUnique({
+      where: { email },
+    });
+
+    if (existingSeller) {
+      return next(new ValidationError("Seller with this email already exists"));
+    }
+
+    await checkOtpRestrictions(email, next);
+    await trackOtpRequests(email, next);
+    await sendOtp(name, email, "seller-activation-mail");
+
+    res.status(200).json({
+      message: "OTP sent to your email for verification",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+//Verify seller with otp
+export const verifySellerOtp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp, password, name, phone_number, country } = req.body;
+    if (!email || !otp || !password || !name || !country || !phone_number) {
+      return next(
+        new ValidationError(
+          "Email, OTP, Password,Name,Phone Number, Country are required"
+        )
+      );
+    }
+    const existingSeller = await prisma.users.findUnique({
+      where: { email },
+    });
+    if (existingSeller) {
+      return next(new ValidationError("Seller with this email already exists"));
+    }
+    await verifyOtp(email, otp, next);
+    const hashedPassword = bcrypt.hash(password, 10);
+
+    const seller = await prisma.sellers.create({
+      data: {
+        name,
+        email,
+        password: await hashedPassword,
+        phone_number,
+        country,
+      },
+    });
+    res.status(201).json({
+      success: true,
+      seller,
+      message: "Seller registered successfully",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+//Create a new shop
+export const createShop = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, bio, address, opening_hours, website, category, sellerId } =
+      req.body;
+    if (!name || !bio || !address || !opening_hours || !category || !sellerId) {
+      return next(new ValidationError("All fields are required"));
+    }
+
+    const shopData: any = {
+      name,
+      bio,
+      address,
+      opening_hours,
+      category,
+      sellerId,
+    };
+
+    if (website && website.trim() !== "") {
+      shopData.website = website;
+    }
+
+    const shop = await prisma.shops.create({
+      data: shopData,
+    });
+
+    res.status(201).json({
+      success: true,
+      shop,
+      message: "Shop Created successfully",
+    });
+  } catch (error) {
+    return next(error);
   }
 };

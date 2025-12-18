@@ -28,8 +28,8 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
-    "../../apps/user-ui/.next/types/**/*.ts",
-    "../../dist/apps/user-ui/.next/types/**/*.ts",
+    "../../apps/seller-ui/.next/types/**/*.ts",
+    "../../dist/apps/seller-ui/.next/types/**/*.ts",
     "next-env.d.ts",
     "src/**/*.js",
     "src/**/*.jsx",
