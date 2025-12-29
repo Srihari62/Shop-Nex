@@ -19,7 +19,7 @@ import StripeLogo from "apps/seller-ui/src/assets/svgs/stripe-logo";
 const Signup = () => {
   const [passwordVisible, setpasswordVisible] = useState(false);
   // const [serverError, setServerError] = useState<string | null>(null);
-  const [activeStep, setActiveStep] = useState(3);
+  const [activeStep, setActiveStep] = useState(1);
   const [timer, setTimer] = useState(60);
   const [showOtp, setShowOtp] = useState(false);
   const [canResend, setCanResend] = useState(true);
@@ -120,7 +120,7 @@ const Signup = () => {
       console.log(sellerId, "SellerId");
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
-        sellerId
+        { sellerId }
       );
       if (response.data.url) {
         window.location.href = response.data.url;

@@ -110,6 +110,9 @@ export const loginUser = async (
     if (!isMatch) {
       return next(new AuthenticationError("Invalid credentials"));
     }
+
+    res.clearCookie("sellerAccessToken");
+    res.clearCookie("sellerRefreshToken");
     //Generate Access Token and Refresh Token
     const accessToken = jwt.sign(
       { id: user.id, role: "user" },
@@ -143,32 +146,41 @@ export const loginUser = async (
 
 //Refresh token
 export const refreshToken = async (
-  req: Request,
+  req: any,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken =
+      req.cookies.sellerRefreshToken ||
+      req.cookies.refreshToken ||
+      req.headers.authorization?.split(" ")[1];
 
     if (!refreshToken) {
-      return new ValidationError("No refresh token provided");
+      return next(new ValidationError("No refresh token provided"));
     }
     const decoded = jwt.verify(
       refreshToken,
       process.env.JWT_REFRESH_SECRET! as string
     ) as { id: string; role: string };
 
-    if (!decoded || !decoded.id || decoded.role) {
-      return new ValidationError("Forbidden! Invalid refresh token");
+    if (!decoded || !decoded.id || !decoded.role) {
+      return next(new ValidationError("Forbidden! Invalid refresh token"));
     }
 
-    // let account;
-    // if (decoded.role === "user") {}
-    const user = await prisma.users.findUnique({
-      where: { id: decoded.id },
-    });
+    let account;
+    if (decoded.role === "user") {
+      account = await prisma.users.findUnique({
+        where: { id: decoded.id },
+      });
+    } else if (decoded.role === "seller") {
+      account = await prisma.sellers.findUnique({
+        where: { id: decoded.id },
+        include: { shop: true },
+      });
+    }
 
-    if (!user) {
+    if (!account) {
       return new AuthenticationError("Forbidden! User/Seller not found");
     }
     const newAccessToken = jwt.sign(
@@ -177,7 +189,13 @@ export const refreshToken = async (
       { expiresIn: "15m" }
     );
 
-    setCookie(res, "access_token", newAccessToken);
+    if (decoded.role === "seller") {
+      setCookie(res, "sellerAccessToken", newAccessToken);
+      return res.status(201).json({ success: true });
+    } else if (decoded.role === "user") {
+      setCookie(res, "accessToken", newAccessToken);
+    }
+    req.role = decoded.role;
     return res.status(201).json({ success: true });
   } catch (error) {
     return next(error);
@@ -379,7 +397,6 @@ export const createStripeConnectLink = async (
 ) => {
   try {
     const { sellerId } = req.body;
-    console.log(req.body, "req.body");
     if (!sellerId) {
       return next(new ValidationError("Seller ID is required"));
     }
@@ -392,8 +409,8 @@ export const createStripeConnectLink = async (
 
     //create stripe connect account
     const account = await stripe.accounts.create({
-      type: "express",
-      country: "IN",
+      type: "standard",
+      country: "US",
       email: seller.email,
       business_type: "individual",
       capabilities: {
@@ -445,6 +462,8 @@ export const loginSeller = async (
     if (!isMatch) {
       return next(new AuthenticationError("Invalid credentials"));
     }
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
     //Generate Access Token and Refresh Token
     const accessToken = jwt.sign(
       { id: seller.id, role: "seller" },
@@ -465,7 +484,7 @@ export const loginSeller = async (
       success: true,
       message: "Login successful",
 
-      user: {
+      seller: {
         id: seller.id,
         name: seller.name,
         email: seller.email,

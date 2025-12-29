@@ -23,7 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${roboto.variable} ${poppins.variable}`}>
-      <body>
+      <body
+        className={`min-h-screen bg-slate-900 font-sans antialiased ${poppins.variable}`}
+      >
         <Providers>
           {/* <Header /> */}
           {children}
