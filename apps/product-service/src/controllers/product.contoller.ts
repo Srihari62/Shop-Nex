@@ -14,6 +14,7 @@ export const getCategories = async (
         .status(404)
         .json({ message: "Site configuration for categories not found" });
     }
+    return res.status(200).json(config);
   } catch (error) {
     return next(error);
   }
