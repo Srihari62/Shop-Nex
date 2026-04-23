@@ -1,4 +1,5 @@
 import { ValidationError } from "@packages/error-handler";
+import { imagekit } from "@packages/libs/imagekit";
 import prisma from "@packages/libs/prisma";
 import { NextFunction, Response, Request } from "express";
 
@@ -112,3 +113,48 @@ export const deleteDiscountCode = async(
     return next(error);
   }
 }
+
+//upload Product Images
+export const uploadProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {fileName} = req.body;
+    
+    const response = await imagekit.upload(
+      {file:fileName,
+      fileName:`product-${Date.now()}.jpg`,
+      folder: "/products"}
+    )
+    res.status(201).json({
+      success:true,
+      message:"Product Image Uploaded successfully",
+      file_url: response.url,
+      fileId: response.fileId
+    })
+  } catch (error) {
+    return next(error)
+  }
+};
+
+// Delete Product Images
+export const deleteProductImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {fileId} = req.body;
+    
+    const response = await imagekit.deleteFile(fileId)
+    res.status(200).json({
+      success:true,
+      message:"Product Image Deleted successfully",
+      response
+    })
+  } catch (error) {
+    return next(error)
+  }
+};

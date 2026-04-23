@@ -31,7 +31,7 @@ const onRefreshSuccess = () => {
 //Handle Api requests
 axiosInstance.interceptors.request.use(
   (config) => config,
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Handle expired Tokens and refresah logic
@@ -53,7 +53,8 @@ axiosInstance.interceptors.response.use(
       try {
         await axios.post(
           `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh-token`,
-          { withCredentials: true }
+          {},
+          { withCredentials: true },
         );
 
         isRefreshing = false;
@@ -68,7 +69,7 @@ axiosInstance.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;
