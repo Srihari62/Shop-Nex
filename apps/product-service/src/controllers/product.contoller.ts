@@ -1,4 +1,4 @@
-import { ValidationError } from "@packages/error-handler";
+import { AuthenticationError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "@packages/libs/imagekit";
 import prisma from "@packages/libs/prisma";
 import { NextFunction, Response, Request } from "express";
@@ -158,3 +158,103 @@ export const deleteProductImage = async (
     return next(error)
   }
 };
+
+//Create Product 
+
+export const createProduct = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      title,
+      description,
+      detailed_description,
+      warranty,
+      custom_specifications,
+      slug,
+      tags,
+      cash_on_delivery,
+      brand,
+      video_url,
+      category,
+      colors = [],
+      sizes = [],
+      discountCodes,
+      stock,
+      sale_price,
+      regular_price,
+      subCategory,
+      customProperties = {},
+      images = [],
+    } = req.body;
+
+    if(!title || !slug || !description  || !category || !stock || !sale_price || !regular_price || !subCategory || !images || !tags){
+      return next(new ValidationError("Missing Required Fields",400))
+    }
+    if(!req.seller.id) {
+      return next(new AuthenticationError("Only Seller can create proucts"))
+    }
+
+    const slugChecking = await prisma.products.findUnique({
+      where:{
+        slug,
+      }
+    })
+    if(slugChecking){
+      return next(new ValidationError("Slug already exist please use a different slug",400))
+    }
+
+    const shop = await prisma.shops.findUnique({
+      where: { sellerId: req.seller.id }
+    });
+
+    if (!shop) {
+      return next(new ValidationError("You need to create a shop before adding products", 400));
+    }
+
+    const newProduct = await prisma.products.create({
+      data:{
+        title,
+        slug,
+        description,
+        detailed_description,
+        warranty,
+        cash_on_delivery: cash_on_delivery === "yes" || cash_on_delivery === true,
+        shopId: shop.id,
+        tags : Array.isArray(tags) ? tags : tags.split(","),
+        custom_specifications : custom_specifications || {},
+        brand,
+        video_url,
+        category,
+        subCategory,
+        images: {
+          create: images.filter((img:any) => img && img.fileId && img.file_url).map((image:any) => ({
+          file_id: image.fileId,
+          url: image.file_url,
+        })),
+        },
+        colors : colors || [],
+        sizes : sizes || [],
+        discount_codes: discountCodes ? discountCodes.map((codeId:string) => codeId) : [],
+        stock : parseInt(stock),
+        sale_price:parseFloat(sale_price),
+        regular_price:parseFloat(regular_price),
+        customProperties: customProperties || {},
+        sellerId: req.seller.id,
+      },
+      include : {
+        images : true
+      }
+    })
+
+    res.status(201).json({
+      success:true,
+      message:"Product Created successfully",
+      newProduct
+    });
+  } catch (error) {
+    return next(error)
+  }
+}

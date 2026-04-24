@@ -1,7 +1,7 @@
 "use client";
 import { ChevronRight, Wand, X } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import ImagePlaceHolder from "../../../shared/components/image-placeholder";
 import Input from "packages/components/input";
 import ColorSelector from "packages/components/color-selector";
@@ -13,6 +13,8 @@ import RichTextEditor from "packages/components/rich-text-editor";
 import SizeSelector from "packages/components/size-selector";
 import Image from "next/image";
 import { enhancements } from "apps/seller-ui/src/utils/ai.enchancement";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface UploadedImage {
   fileId: string;
@@ -37,6 +39,8 @@ const CreateProduct = () => {
   const [isChanged, setIsChanged] = useState(true);
   const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["categories"],
@@ -81,8 +85,16 @@ const CreateProduct = () => {
 
   // console.log(categories, subCategories);
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    try {
+      setLoading(true);
+      await axiosInstance.post("/product/api/create-product", data);
+      router.push("/dashboard/all-products");
+    } catch (error: any) {
+      toast.error(error?.data.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const convertFiletoBAse64 = (file: File) => {

@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createDiscountCode, deleteDiscountCode, deleteProductImage, getCategories, getDiscountCodes, uploadProductImage } from "../controllers/product.contoller";
+import { createDiscountCode, createProduct, deleteDiscountCode, deleteProductImage, getCategories, getDiscountCodes, uploadProductImage } from "../controllers/product.contoller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
@@ -11,4 +11,7 @@ router.delete("/delete-discount-code/:id",isAuthenticated,deleteDiscountCode)
 
 router.post("/upload-product-image",isAuthenticated,uploadProductImage)
 router.delete("/delete-product-image",isAuthenticated,deleteProductImage)
+
+//product
+router.post("/create-product",isAuthenticated,createProduct)
 export default router;
