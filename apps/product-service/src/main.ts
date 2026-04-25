@@ -1,7 +1,8 @@
+import "./jobs/product-cron.job";
 import express from "express";
 import cors from "cors";
-import { errorMiddleware } from "@packages/error-handler/error-middleware";
 import cookieParser from "cookie-parser";
+import { errorMiddleware } from "@packages/error-handler/error-middleware";
 import swaggerUi from "swagger-ui-express";
 import router from "./routes/product.routes";
 import swaggerDocument from "./swagger-output.json";

@@ -11,12 +11,10 @@ model images {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   file_id   String
   url       String
-  userId    String?   @unique @db.ObjectId
-  users     users?    @relation(fields: [userId], references: [id])
-  shopId    String?   @unique @db.ObjectId
-  shops     shops?    @relation(fields: [shopId], references: [id])
   products  products? @relation(fields: [productId], references: [id])
   productId String?   @db.ObjectId
+  user      users?    @relation("UserAvatar")
+  shop      shops?    @relation("ShopAvatar")
 }
 
 model users {
@@ -25,7 +23,8 @@ model users {
   email       String        @unique
   password    String?
   following   String[]
-  avatar      images?
+  avatarId    String?       @unique @db.ObjectId
+  avatar      images?       @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   shopReviews shopReviews[]
@@ -48,7 +47,8 @@ model shops {
   name          String
   bio           String
   category      String
-  avatar        images?
+  avatarId      String?       @unique @db.ObjectId
+  avatar        images?       @relation("ShopAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   coverBanner   String?
   address       String
   opening_hours String

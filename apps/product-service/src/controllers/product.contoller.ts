@@ -206,14 +206,6 @@ export const createProduct = async (
       return next(new ValidationError("Slug already exist please use a different slug",400))
     }
 
-    const shop = await prisma.shops.findUnique({
-      where: { sellerId: req.seller.id }
-    });
-
-    if (!shop) {
-      return next(new ValidationError("You need to create a shop before adding products", 400));
-    }
-
     const newProduct = await prisma.products.create({
       data:{
         title,
@@ -221,8 +213,8 @@ export const createProduct = async (
         description,
         detailed_description,
         warranty,
-        cash_on_delivery: cash_on_delivery === "yes" || cash_on_delivery === true,
-        shopId: shop.id,
+        cash_on_delivery: cash_on_delivery === "yes" ? true : false,
+        shopId: req.seller?.shop?.id!,
         tags : Array.isArray(tags) ? tags : tags.split(","),
         custom_specifications : custom_specifications || {},
         brand,
@@ -237,7 +229,7 @@ export const createProduct = async (
         },
         colors : colors || [],
         sizes : sizes || [],
-        discount_codes: discountCodes ? discountCodes.map((codeId:string) => codeId) : [],
+        discount_codes: discountCodes.map((codeId:string) => codeId),
         stock : parseInt(stock),
         sale_price:parseFloat(sale_price),
         regular_price:parseFloat(regular_price),
@@ -254,6 +246,121 @@ export const createProduct = async (
       message:"Product Created successfully",
       newProduct
     });
+  } catch (error) {
+    return next(error)
+  }
+}
+
+//get loggedin seller products
+
+export const getShopProducts = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const products = await prisma.products.findMany({
+      where: {
+        shopId: req?.seller?.shop?.id
+      },
+      include: {
+        images: true
+      }
+    })
+    res.status(200).json({
+      success:true,
+      products
+    })
+  } catch (error) { 
+    return next(error)
+  }
+}
+
+//delete product
+
+export const deleteProduct = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {productId} = req.params;
+    const sellerId = req.seller?.shop?.id;
+    const product = await prisma.products.findUnique({
+      where: {
+        id:productId
+      },
+      select: {id:true, shopId:true,isDeleted:true}
+    })
+    if(!product){
+      return next(new ValidationError("Product not found",404))
+    }
+    if(product.shopId !== sellerId){
+      return next(new ValidationError("You are not authorized to delete this product",403))
+    }
+    if (product.isDeleted) {
+      return next(new ValidationError("Product is already deleted",400))
+    }    
+
+    const deletedProduct = await prisma.products.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now()+ 24*60*60*1000),
+      }
+    })
+
+ res.status(200).json({
+      success:true,
+      message:"Product is scheduled for deletion in 24hrs, You can restore this product within 24hrs",
+      deletedAt: deletedProduct.deletedAt
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+// Restore Product
+
+export const restoreProduct = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {productId} = req.params;
+    const sellerId = req.seller?.shop?.id;
+    const product = await prisma.products.findUnique({
+      where: {
+        id:productId
+      },
+      select: {id:true, shopId:true,isDeleted:true}
+    })
+    if(!product){
+      return next(new ValidationError("Product not found",404))
+    }
+    if(product.shopId !== sellerId){
+      return next(new ValidationError("You are not authorized to restore this product",403))
+    }
+    if (!product.isDeleted) {
+      return next(new ValidationError("Product is already active",400))
+    }    
+
+    await prisma.products.update({
+      where: {
+        id: productId,
+      },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      }
+    })
+    res.status(200).json({
+      success:true,
+      message:"Product restored successfully",
+    })
   } catch (error) {
     return next(error)
   }
