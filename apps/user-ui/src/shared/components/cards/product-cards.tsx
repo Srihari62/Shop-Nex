@@ -2,6 +2,11 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star, Heart, Eye, ShoppingCart } from "lucide-react";
+import ProductDetailsCard from "./product-details-card";
+import { useStore } from "apps/user-ui/src/store";
+import useUser from "apps/user-ui/src/hooks/useUser";
+import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
+import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
 
 interface ProductCardProps {
   product: any;
@@ -9,6 +14,20 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, isEvent }: ProductCardProps) => {
+  const { user } = useUser();
+  const location = useLocationTracking();
+  const deviceInfo = useDeviceTracking();
+
+  const [open, setOpen] = React.useState(false);
+  const addToCart = useStore((state: any) => state.addToCart);
+  const removeFromCart = useStore((state: any) => state.removeFromCart);
+  const addToWishlist = useStore((state: any) => state.addToWishlist);
+  const removeFromWishlist = useStore((state: any) => state.removeFromWishlist);
+  const wishlist = useStore((state: any) => state.wishlist);
+  const isWishlisted = wishlist.some((item: any) => item?.id === product?.id);
+  const cart = useStore((state: any) => state.cart);
+  const isInCart = cart.some((item: any) => item?.id === product?.id);
+
   const imageUrl =
     product?.images?.[0]?.url || "https://via.placeholder.com/300";
   const rating = product?.ratings ?? product?.rating ?? 5;
@@ -53,7 +72,11 @@ const ProductCard = ({ product, isEvent }: ProductCardProps) => {
                 key={index}
                 size={10}
                 fill={index < Math.round(rating) ? "#facc15" : "none"}
-                className={index < Math.round(rating) ? "text-yellow-400" : "text-white/20"}
+                className={
+                  index < Math.round(rating)
+                    ? "text-yellow-400"
+                    : "text-white/20"
+                }
               />
             ))}
             <span className="text-[10px] font-bold text-white/90 ml-1">
@@ -80,20 +103,58 @@ const ProductCard = ({ product, isEvent }: ProductCardProps) => {
         </div>
 
         <div className="flex items-center justify-around pt-3 border-t border-white/10">
-          <button className="text-white/70 hover:text-white transition-colors">
-            <Heart size={18} />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isWishlisted) {
+                removeFromWishlist(product?.id, user, location, deviceInfo);
+              } else {
+                addToWishlist(
+                  { ...product, quantity: 1 },
+                  user,
+                  location,
+                  deviceInfo,
+                );
+              }
+            }}
+            className={`${isWishlisted ? "text-red-600 hover:text-red-500" : "text-white/70 hover:text-red-400"} transition-colors`}
+          >
+            <Heart size={18} fill={isWishlisted ? "currentColor" : "none"} />
           </button>
-          <Link
-            href={`/product/${product?.id}`}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(true);
+            }}
             className="text-white/70 hover:text-white transition-colors"
           >
             <Eye size={18} />
-          </Link>
-          <button className="text-white/70 hover:text-white transition-colors">
-            <ShoppingCart size={18} />
+          </button>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isInCart) {
+                removeFromCart(product?.id, user, location, deviceInfo);
+              } else {
+                addToCart(
+                  { ...product, quantity: 1 },
+                  user,
+                  location,
+                  deviceInfo,
+                );
+              }
+            }}
+            className={`${isInCart ? "text-indigo-500 hover:text-indigo-400" : "text-white/70 hover:text-indigo-300"} transition-colors`}
+          >
+            <ShoppingCart size={18} fill={isInCart ? "currentColor" : "none"} />
           </button>
         </div>
       </div>
+
+      {open && (
+        <ProductDetailsCard product={product} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 };
