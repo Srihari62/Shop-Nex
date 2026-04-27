@@ -420,3 +420,344 @@ export const getAllProducts = async (
   }
 }
 
+export const getProductDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const product = await prisma.products.findUnique({
+      where: {
+        slug : req.params.slug!
+      },
+      include : {
+        images: true,
+        shop: true
+      }
+    })
+    res.status(200).json({
+      success:true,
+      product
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+export const getFilteredProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      priceRange,
+      colors = [],
+      sizes = [],
+      categories = [],
+      page = 1,
+      limit = 12
+    } = req.query;
+    
+    const parsedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0, 1000000];
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const filters: Record<string, any> = {
+      isDeleted: false,
+      sale_price: {
+        gte: parsedPriceRange[0],
+        lte: parsedPriceRange[1],
+      }
+    };
+
+    if (categories && (Array.isArray(categories) ? categories.length > 0 : String(categories).length > 0)) {
+      filters.category = {
+        in: Array.isArray(categories) ? categories : String(categories).split(",")
+      };
+    }
+    
+    if (colors && (Array.isArray(colors) ? colors.length > 0 : String(colors).length > 0)) {
+      filters.colors = {
+        hasEvery: Array.isArray(colors) ? colors : String(colors).split(",")
+      };
+    }
+    
+    if (sizes && (Array.isArray(sizes) ? sizes.length > 0 : String(sizes).length > 0)) {
+      filters.sizes = {
+        hasEvery: Array.isArray(sizes) ? sizes : String(sizes).split(",")
+      };
+    }
+
+    const [products, total] = await Promise.all([
+      prisma.products.findMany({
+        skip,
+        take: parsedLimit,
+        include: {
+          images: true,
+          shop: true
+        },
+        where: filters,
+        orderBy: {
+          createdAt: "desc"
+        }
+      }),
+      prisma.products.count({ where: filters }),
+    ]);
+
+    const totalPages = Math.ceil(total / parsedLimit);
+    res.status(200).json({
+      success: true,
+      products,
+      pagination: {
+        total,
+        page: parsedPage,
+        totalPages,
+      }
+    });
+    
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export const getFilteredEvents = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      priceRange = [0-10000],
+      colors = [],
+      sizes = [],
+      categories = [],
+      page = 1,
+      limit = 12
+    } = req.query;
+    
+    const parcedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0,10000];
+    const parcedPage = Number(page);
+    const parsedLimit = Number(limit);
+
+    const skip = (parcedPage-1) * parsedLimit;
+
+    const filters: Record<string,any> = {
+      sale_price : {
+        gte : parcedPriceRange[0],
+        lte : parcedPriceRange[1],
+      },
+      NOT : {
+        starting_date : null,
+      }
+    }
+
+    if(categories && (categories as string[]).length > 0 ) {
+      filters.category = {
+        in: Array.isArray(categories) ? categories : String(categories).split(",")
+      }
+    }
+    if(colors && (colors as string[]).length > 0 ) {
+      filters.colors = {
+        in: Array.isArray(colors) ? colors : [colors]
+      }
+    }
+    if(sizes && (sizes as string[]).length > 0 ) {
+      filters.sizes = {
+        in: Array.isArray(sizes) ? sizes : [sizes]
+      }
+    }
+
+    const [products,total] = await Promise.all([
+      prisma.products.findMany({
+        skip,
+        take:parsedLimit,
+        include : {
+          images: true,
+          shop: true
+        },
+        where: filters,
+      }),
+      prisma.products.count({where: filters}),
+    ])
+
+    const totatPages = Math.ceil(total/parsedLimit);
+    res.status(200).json({
+      success:true,
+      products,
+      pagination : {
+        total,
+        page: parcedPage,
+        totatPages,
+      }
+    })
+    
+  } catch (error) {
+    
+  }
+}
+
+export const getFilteredShops = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {categories = [],countries = [],page=1,limit=12} = req.query;
+    const parcedPage = Number(page);
+    const parsedLimit = Number(limit);
+    const skip = (parcedPage-1)*parsedLimit
+
+    const filters:Record<string,any> = {}
+
+    if(categories && (categories as string[]).length > 0 ) {
+      filters.category = {
+        in: Array.isArray(categories) ? categories : String(categories).split(",")
+      }
+    }
+    if(countries && (countries as string[]).length > 0 ) {
+      filters.country = {
+        in: Array.isArray(countries) ? countries : String(countries).split(",")
+      }
+    }
+
+    const [shops,total] = await Promise.all([
+      prisma.shops.findMany({
+        skip,
+        take:parsedLimit,
+        include : {
+          sellers: true,
+          // followers: true,
+          products: true,
+        },
+        where: filters,
+      }),
+      prisma.shops.count({where: filters}),
+    ])
+
+    const totatPages = Math.ceil(total/parsedLimit);
+    res.status(200).json({
+      success:true,
+      shops,
+      pagination : {
+        total,
+        page: parcedPage,
+        totatPages,
+      }
+    })
+    
+  } catch (error) {
+    
+  }
+}
+
+export const searchProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try{
+    const query = req.query.q as string
+    if (!query || query.trim().length === 0 ) {
+      res.status(400).json({
+        success:false,
+        message:"Search Query is required"
+      })
+    }
+    const products = await prisma.products.findMany({
+      where : {
+        OR: [
+          {
+            title: {
+              contains: query,
+              mode: "insensitive"
+            }
+          },
+          {
+            description: {
+              contains: query,
+              mode: "insensitive"
+            }
+          }
+        ]
+      },
+      select : {
+        id : true,
+        title:true,
+        slug:true
+      },
+      take: 10,
+      orderBy: {
+        createdAt: "desc"
+      }
+    })
+
+    res.status(200).json({
+      success:true,
+      products,
+    })
+
+  } catch (error) {
+    
+  }
+}
+
+// export const getTopShops = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try{
+//     const topShopsData = await prisma.orders.grroupBy({
+//       by: ["shopId"],
+//       _sum : {
+//         total:true
+//       },
+//       orderBy :{
+//         _sum : {
+//           total: "desc"
+//         }
+//       },
+//       take:10
+//     })
+//     const shopIds = topShopsData.map((item:any) => item.shopId)
+//     const shops = await prisma.shops.findMany({
+//       where: {
+//         id : {
+//           in: shopIds
+//         }
+//       },
+//       select: {
+//         id : true,
+//         name: true,
+//         avatar: true,
+//         coverBanner : true,
+//         address : true,
+//         ratings: true,
+//         // followers: true,
+//         category:true,
+        
+//       }
+//     })
+
+//     const enrichedShops = shops.map((shop:any) => {
+//       const salesData = topShopsData.find((item:any) => item.shopId === shop.id);
+//       return {
+//         ...shop,
+//         totalSales: salesData?._sum.total ?? 0,
+//       };
+//     });
+
+//     const top10Shops = enrichedShops.sort((a:any,b:any) => b.totalSales - a.totalSales).slice(0,10)
+
+//     res.status(200).json({
+//       success:true,
+//       shops: top10Shops,
+//     })
+//   } catch (error) {
+//     console.error("Error fetching top shops:", error);
+//     return next(error)
+//   }
+// }
