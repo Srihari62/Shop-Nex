@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { persist } from "zustand/middleware";
+import { sendKafkaEvent } from "../actions/track-user";
 
 type Product = {
   id: string;
@@ -17,31 +18,31 @@ type Store = {
   addToCart: (
     product: Product,
     user: any,
-    location: string,
+    location: any,
     deviceInfo: string,
   ) => void;
   removeFromCart: (
     id: string,
     user: any,
-    location: string,
+    location: any,
     deviceInfo: string,
   ) => void;
   decrementQuantity: (
     id: string,
     user: any,
-    location: string,
+    location: any,
     deviceInfo: string,
   ) => void;
   addToWishlist: (
     product: Product,
     user: any,
-    location: string,
+    location: any,
     deviceInfo: string,
   ) => void;
   removeFromWishlist: (
     id: string,
     user: any,
-    location: string,
+    location: any,
     deviceInfo: string,
   ) => void;
 };
@@ -68,12 +69,33 @@ export const useStore = create<Store>()(
           }
           return { cart: [...state?.cart, { ...product, quantity: 1 }] };
         });
+        // send kafka event
+        sendKafkaEvent({
+          userId: user?.id || "anonymous",
+          productId: product?.id,
+          shopId: product?.shopId,
+          action: "add_to_cart",
+          device: deviceInfo || "Unknown",
+          country: location?.country || "Unknown",
+          city: location?.city || "Unknown",
+        });
       },
 
       removeFromCart: async (id, user, location, deviceInfo) => {
+        const removedProduct = get().cart?.find((item) => item?.id === id);
         set((state) => ({
           cart: state?.cart?.filter((item) => item?.id !== id),
         }));
+        // send kafka event
+        sendKafkaEvent({
+          userId: user?.id || "anonymous",
+          productId: removedProduct?.id,
+          shopId: removedProduct?.shopId,
+          action: "remove_from_cart",
+          device: deviceInfo || "Unknown",
+          country: location?.country || "Unknown",
+          city: location?.city || "Unknown",
+        });
       },
 
       decrementQuantity: async (id, user, location, deviceInfo) => {
@@ -90,7 +112,6 @@ export const useStore = create<Store>()(
         });
       },
 
-
       addToWishlist: async (product, user, location, deviceInfo) => {
         set((state) => {
           const existing = state.wishlist?.find(
@@ -101,6 +122,16 @@ export const useStore = create<Store>()(
           }
           return { wishlist: [...state?.wishlist, product] };
         });
+        // send kafka event
+        sendKafkaEvent({
+          userId: user?.id || "anonymous",
+          productId: product?.id,
+          shopId: product?.shopId,
+          action: "add_to_wishlist",
+          device: deviceInfo || "Unknown",
+          country: location?.country || "Unknown",
+          city: location?.city || "Unknown",
+        });
       },
 
       removeFromWishlist: async (id, user, location, deviceInfo) => {
@@ -108,6 +139,16 @@ export const useStore = create<Store>()(
         set((state) => ({
           wishlist: state?.wishlist?.filter((item) => item?.id !== id),
         }));
+        // send kafka event
+        sendKafkaEvent({
+          userId: user?.id || "anonymous",
+          productId: removedProduct?.id,
+          shopId: removedProduct?.shopId,
+          action: "remove_from_wishlist",
+          device: deviceInfo || "Unknown",
+          country: location?.country || "Unknown",
+          city: location?.city || "Unknown",
+        });
       },
     }),
     { name: "store-storage" },

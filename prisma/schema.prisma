@@ -43,24 +43,25 @@ model shopReviews {
 }
 
 model shops {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  bio           String
-  category      String
-  avatarId      String?       @unique @db.ObjectId
-  avatar        images?       @relation("ShopAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  coverBanner   String?
-  address       String
-  opening_hours String
-  website       String?
-  socialLinks   Json[]
-  ratings       Float         @default(0)
-  reviews       shopReviews[]
-  sellerId      String        @unique @db.ObjectId
-  sellers       sellers       @relation(fields: [sellerId], references: [id])
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  products      products[]
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  bio              String
+  category         String
+  avatarId         String?            @unique @db.ObjectId
+  avatar           images?            @relation("ShopAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  coverBanner      String?
+  address          String
+  opening_hours    String
+  website          String?
+  socialLinks      Json[]
+  ratings          Float              @default(0)
+  reviews          shopReviews[]
+  sellerId         String             @unique @db.ObjectId
+  sellers          sellers            @relation(fields: [sellerId], references: [id])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  products         products[]
+  productAnalytics productAnalytics[]
 }
 
 model sellers {
@@ -134,4 +135,39 @@ model products {
   updatedAt             DateTime      @updatedAt
   shopId                String        @db.ObjectId
   shop                  shops         @relation(fields: [shopId], references: [id])
+}
+
+type UserAction {
+  productId String
+  shopId    String
+  action    String
+  timestamp DateTime @default(now())
+}
+
+model userAnalytics {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String       @unique
+  lastVisited DateTime     @default(now())
+  lastTrained DateTime     @default(now())
+  actions     UserAction[]
+  device      String?
+  country     String?
+  city        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model productAnalytics {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String   @unique
+  shop         shops?   @relation(fields: [shopId], references: [id])
+  shopId       String?  @db.ObjectId
+  views        Int      @default(0)
+  cartAdds     Int      @default(0)
+  wishlistAdds Int      @default(0)
+  checkouts    Int      @default(0)
+  purchases    Int      @default(0)
+  lastViewedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
