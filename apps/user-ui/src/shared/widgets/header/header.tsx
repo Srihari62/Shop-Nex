@@ -49,7 +49,9 @@ const Header = () => {
                   <ProfileIcon />
                 </Link>
                 <Link href={"/profile"} className="hidden sm:block">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Hello,</span>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    Hello,
+                  </span>
                   <span className="block font-black text-[#365870] text-sm">
                     {user?.name?.split(" ")[0]}
                   </span>
@@ -64,7 +66,9 @@ const Header = () => {
                   <ProfileIcon />
                 </Link>
                 <Link href={"/login"} className="hidden sm:block text-right">
-                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Sign In</span>
+                  <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                    Sign In
+                  </span>
                   <span className="block font-black text-[#365870] text-sm">
                     {isLoading ? "..." : "Account"}
                   </span>
@@ -77,16 +81,28 @@ const Header = () => {
 
           {/* Cart & Wishlist */}
           <div className="flex items-center gap-5">
-            <Link href={"/wishlist"} className="relative group p-2 hover:bg-slate-50 rounded-xl transition-all">
-              <HeartPlus size={22} className="text-slate-600 group-hover:text-red-500 transition-colors" />
+            <Link
+              href={"/wishlist"}
+              className="relative group p-2 hover:bg-slate-50 rounded-xl transition-all"
+            >
+              <HeartPlus
+                size={22}
+                className="text-slate-600 group-hover:text-red-500 transition-colors"
+              />
               <div className="w-5 h-5 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[0px] right-[0px] shadow-lg">
                 <span className="text-white font-bold text-[9px]">
                   {wishlist?.length || 0}
                 </span>
               </div>
             </Link>
-            <Link href={"/cart"} className="relative group p-2 hover:bg-slate-50 rounded-xl transition-all">
-              <ShoppingCart size={22} className="text-slate-600 group-hover:text-[#47718F] transition-colors" />
+            <Link
+              href={"/cart"}
+              className="relative group p-2 hover:bg-slate-50 rounded-xl transition-all"
+            >
+              <ShoppingCart
+                size={22}
+                className="text-slate-600 group-hover:text-[#47718F] transition-colors"
+              />
               <div className="w-5 h-5 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[0px] right-[0px] shadow-lg">
                 <span className="text-white font-bold text-[9px]">
                   {cart.length || 0}
@@ -100,7 +116,6 @@ const Header = () => {
       <HeaderBottom />
     </div>
   );
-
 };
 
 export default Header;

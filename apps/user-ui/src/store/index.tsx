@@ -45,6 +45,7 @@ type Store = {
     location: any,
     deviceInfo: string,
   ) => void;
+  clearCart: () => void;
 };
 
 export const useStore = create<Store>()(
@@ -159,6 +160,7 @@ export const useStore = create<Store>()(
           city: location?.city || "Unknown",
         });
       },
+      clearCart: () => set({ cart: [] }),
     }),
     { name: "store-storage" },
   ),

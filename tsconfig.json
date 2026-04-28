@@ -26,6 +26,9 @@
     },
     {
       "path": "./apps/kafka"
+    },
+    {
+      "path": "./apps/order-service"
     }
   ]
 }
