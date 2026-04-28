@@ -138,7 +138,7 @@ const ProductsPage = () => {
     if (searchQuery) params.set("q", searchQuery);
 
     const qs = params.toString();
-    router.replace(`/products${qs ? `?${qs}` : ""}`, { scroll: false });
+    router.replace(`/offers${qs ? `?${qs}` : ""}`, { scroll: false });
   }, [
     appliedPriceRange,
     selectedCategories,
@@ -166,7 +166,7 @@ const ProductsPage = () => {
   // ── Fetch products ──
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [
-      "filtered-products",
+      "filtered-offers",
       appliedPriceRange,
       selectedCategories,
       selectedColors,
@@ -182,14 +182,14 @@ const ProductsPage = () => {
       params.set("limit", "12");
       params.set("sort", sortBy);
       if (debouncedSearch) params.set("q", debouncedSearch);
-      
+
       if (selectedCategories.length)
         params.set("categories", selectedCategories.join(","));
       if (selectedColors.length) params.set("colors", selectedColors.join(","));
       if (selectedSizes.length) params.set("sizes", selectedSizes.join(","));
 
       const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?${params.toString()}`,
+        `/product/api/get-filtered-offers?${params.toString()}`,
       );
       return res.data;
     },
@@ -409,17 +409,21 @@ const ProductsPage = () => {
         <div className="absolute top-0 -right-20 w-60 h-60 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 -left-20 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="w-[90%] md:w-[80%] mx-auto py-8 relative z-10">
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">
-            All Products
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
+            Special Offers
+            <span className="ml-4 text-xs font-bold bg-white/10 text-white/90 px-3 py-1 rounded-full tracking-normal">
+              {pagination.total} Total
+            </span>
           </h1>
           <div className="flex items-center gap-2 mt-2 text-sm text-white/60 font-medium">
             <span className="hover:text-white/90 cursor-pointer transition-colors">
               Home
             </span>
-            <span>·</span>
-            <span className="text-white/90">All Products</span>
+            <span className="text-white/30">·</span>
+            <span className="text-white/90">Offers</span>
           </div>
         </div>
+
       </div>
 
       {/* ── Main Content ── */}

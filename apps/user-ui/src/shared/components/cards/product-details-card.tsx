@@ -44,6 +44,16 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
 
 
 
+  const [activeImage, setActiveImage] = useState(
+    product?.images?.[0]?.url || "https://via.placeholder.com/600"
+  );
+
+  useEffect(() => {
+    if (product?.images?.[0]?.url) {
+      setActiveImage(product.images[0].url);
+    }
+  }, [product]);
+
   useEffect(() => {
     setMounted(true);
     document.body.style.overflow = "hidden";
@@ -54,8 +64,7 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
 
   if (!mounted || !product) return null;
 
-  const imageUrl =
-    product?.images?.[0]?.url || "https://via.placeholder.com/600";
+
   const rating = product?.ratings ?? product?.rating ?? 5;
   const price = product?.sale_price ?? product?.price ?? 0;
   const originalPrice = product?.regular_price ?? product?.price;
@@ -84,33 +93,36 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
           className="absolute top-5 right-5 z-[100] text-white/50 hover:text-white cursor-pointer transition-colors" 
         />
 
-
-
         {/* Left Section: Images */}
         <div className="w-full md:w-1/2 p-8 flex flex-col items-center bg-white/5 border-b md:border-b-0 md:border-r border-white/10">
           <div className="relative w-full aspect-square mb-6 bg-white/5 rounded-3xl overflow-hidden group border border-white/10">
             <Image
-              src={imageUrl}
+              src={activeImage}
               alt={product?.title || "Product"}
               fill
-              className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
+              className="object-contain p-8 transition-all duration-700 group-hover:scale-105"
               unoptimized
             />
           </div>
 
           {/* Thumbnails */}
-          <div className="flex gap-4 self-start">
-            <div className="w-20 h-20 rounded-xl border-2 border-white overflow-hidden bg-white/10 cursor-pointer shadow-lg shadow-black/20">
-              <Image
-                src={imageUrl}
-                alt="thumb"
-                width={80}
-                height={80}
-                className="object-contain p-2"
-                unoptimized
-              />
-            </div>
-            <div className="w-20 h-20 rounded-xl border border-white/10 overflow-hidden bg-white/5 cursor-pointer hover:bg-white/10 transition-colors shadow-lg shadow-black/20"></div>
+          <div className="flex gap-4 self-start overflow-x-auto pb-2 w-full custom-scrollbar">
+            {product?.images?.map((img: any, idx: number) => (
+              <div 
+                key={idx}
+                onClick={() => setActiveImage(img.url)}
+                className={`w-20 h-20 shrink-0 rounded-xl border-2 transition-all overflow-hidden bg-white/10 cursor-pointer shadow-lg ${activeImage === img.url ? "border-white scale-105 shadow-white/20" : "border-white/10 grayscale hover:grayscale-0 hover:border-white/40"}`}
+              >
+                <Image
+                  src={img.url}
+                  alt={`thumb-${idx}`}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ))}
           </div>
         </div>
 
@@ -209,10 +221,16 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
               ${price}
             </span>
             {originalPrice > price && (
-              <span className="text-xl text-white/30 line-through font-bold">
-                ${originalPrice}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xl text-white/30 line-through font-bold">
+                  ${originalPrice}
+                </span>
+                <span className="bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">
+                  {discount}% OFF
+                </span>
+              </div>
             )}
+
           </div>
 
           {/* Action Row */}

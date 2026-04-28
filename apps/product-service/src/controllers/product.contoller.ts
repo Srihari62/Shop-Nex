@@ -456,7 +456,9 @@ export const getFilteredProducts = async (
       sizes = [],
       categories = [],
       page = 1,
-      limit = 12
+      limit = 12,
+      sort = "newest",
+      q = ""
     } = req.query;
     
     const parsedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0, 1000000];
@@ -472,6 +474,15 @@ export const getFilteredProducts = async (
         lte: parsedPriceRange[1],
       }
     };
+
+    // Add search query filter
+    if (q) {
+      filters.OR = [
+        { title: { contains: String(q), mode: "insensitive" } },
+        { description: { contains: String(q), mode: "insensitive" } },
+        { tags: { has: String(q) } }
+      ];
+    }
 
     if (categories && (Array.isArray(categories) ? categories.length > 0 : String(categories).length > 0)) {
       filters.category = {
@@ -491,6 +502,12 @@ export const getFilteredProducts = async (
       };
     }
 
+    // Determine sort order
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price_asc") orderBy = { sale_price: "asc" };
+    if (sort === "price_desc") orderBy = { sale_price: "desc" };
+    if (sort === "popular") orderBy = { ratings: "desc" };
+
     const [products, total] = await Promise.all([
       prisma.products.findMany({
         skip,
@@ -500,9 +517,7 @@ export const getFilteredProducts = async (
           shop: true
         },
         where: filters,
-        orderBy: {
-          createdAt: "desc"
-        }
+        orderBy
       }),
       prisma.products.count({ where: filters }),
     ]);
@@ -530,45 +545,63 @@ export const getFilteredEvents = async (
 ) => {
   try {
     const {
-      priceRange = [0-10000],
+      priceRange,
       colors = [],
       sizes = [],
       categories = [],
       page = 1,
-      limit = 12
+      limit = 12,
+      sort = "newest",
+      q = ""
     } = req.query;
     
-    const parcedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0,10000];
+    const parcedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0, 1000000];
     const parcedPage = Number(page);
     const parsedLimit = Number(limit);
 
     const skip = (parcedPage-1) * parsedLimit;
 
+    const now = new Date();
     const filters: Record<string,any> = {
+      isDeleted: false,
       sale_price : {
         gte : parcedPriceRange[0],
         lte : parcedPriceRange[1],
       },
-      NOT : {
-        starting_date : null,
-      }
+      starting_date: { lte: now },
+      ending_date: { gte: now },
     }
 
-    if(categories && (categories as string[]).length > 0 ) {
+    if (q) {
+      filters.OR = [
+        { title: { contains: String(q), mode: "insensitive" } },
+        { description: { contains: String(q), mode: "insensitive" } },
+        { tags: { has: String(q) } }
+      ];
+    }
+
+    if(categories && (Array.isArray(categories) ? categories.length > 0 : String(categories).length > 0)) {
       filters.category = {
         in: Array.isArray(categories) ? categories : String(categories).split(",")
       }
     }
-    if(colors && (colors as string[]).length > 0 ) {
+    if(colors && (Array.isArray(colors) ? colors.length > 0 : String(colors).length > 0)) {
       filters.colors = {
-        in: Array.isArray(colors) ? colors : [colors]
+        hasEvery: Array.isArray(colors) ? colors : String(colors).split(",")
       }
     }
-    if(sizes && (sizes as string[]).length > 0 ) {
+    if(sizes && (Array.isArray(sizes) ? sizes.length > 0 : String(sizes).length > 0)) {
       filters.sizes = {
-        in: Array.isArray(sizes) ? sizes : [sizes]
+        hasEvery: Array.isArray(sizes) ? sizes : String(sizes).split(",")
       }
     }
+
+    // Determine sort order
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price_asc") orderBy = { sale_price: "asc" };
+    if (sort === "price_desc") orderBy = { sale_price: "desc" };
+    if (sort === "popular") orderBy = { ratings: "desc" };
+
 
     const [products,total] = await Promise.all([
       prisma.products.findMany({
@@ -579,20 +612,22 @@ export const getFilteredEvents = async (
           shop: true
         },
         where: filters,
+        orderBy
       }),
       prisma.products.count({where: filters}),
     ])
 
-    const totatPages = Math.ceil(total/parsedLimit);
+    const totalPages = Math.ceil(total / parsedLimit);
     res.status(200).json({
-      success:true,
+      success: true,
       products,
-      pagination : {
+      pagination: {
         total,
         page: parcedPage,
-        totatPages,
-      }
-    })
+        totalPages,
+      },
+    });
+
     
   } catch (error) {
     
@@ -605,12 +640,21 @@ export const getFilteredShops = async (
   next: NextFunction
 ) => {
   try {
-    const {categories = [],countries = [],page=1,limit=12} = req.query;
+    const { categories = [], countries = [], page = 1, limit = 12, q = "" } = req.query;
     const parcedPage = Number(page);
     const parsedLimit = Number(limit);
-    const skip = (parcedPage-1)*parsedLimit
+    const skip = (parcedPage - 1) * parsedLimit;
 
-    const filters:Record<string,any> = {}
+    const filters: Record<string, any> = {};
+
+    if (q) {
+      filters.OR = [
+        { name: { contains: String(q), mode: "insensitive" } },
+        { bio: { contains: String(q), mode: "insensitive" } },
+        { description: { contains: String(q), mode: "insensitive" } },
+      ];
+    }
+
 
     if(categories && (categories as string[]).length > 0 ) {
       filters.category = {
@@ -637,16 +681,17 @@ export const getFilteredShops = async (
       prisma.shops.count({where: filters}),
     ])
 
-    const totatPages = Math.ceil(total/parsedLimit);
+    const totalPages = Math.ceil(total / parsedLimit);
     res.status(200).json({
-      success:true,
+      success: true,
       shops,
-      pagination : {
+      pagination: {
         total,
         page: parcedPage,
-        totatPages,
-      }
-    })
+        totalPages,
+      },
+    });
+
     
   } catch (error) {
     

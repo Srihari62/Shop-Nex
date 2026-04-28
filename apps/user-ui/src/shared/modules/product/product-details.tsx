@@ -47,8 +47,9 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
     queryKey: ["related-products", productDetails?.category],
     queryFn: async () => {
       const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?categories=${productDetails?.category}&limit=10`,
+        `/product/api/get-filtered-products?categories=${encodeURIComponent(productDetails?.category)}&limit=10`,
       );
+
       return res.data.products.filter((p: any) => p.id !== productDetails.id);
     },
     enabled: !!productDetails?.category,

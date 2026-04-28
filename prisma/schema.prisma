@@ -14,7 +14,8 @@ model images {
   products  products? @relation(fields: [productId], references: [id])
   productId String?   @db.ObjectId
   user      users?    @relation("UserAvatar")
-  shop      shops?    @relation("ShopAvatar")
+  shops     shops[]   @relation("ShopAvatar")
+
 }
 
 model users {
@@ -45,16 +46,22 @@ model shopReviews {
 model shops {
   id               String             @id @default(auto()) @map("_id") @db.ObjectId
   name             String
-  bio              String
-  category         String
-  avatarId         String?            @unique @db.ObjectId
-  avatar           images?            @relation("ShopAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  bio              String?
+  description      String?
+  category         String?
+  avatar_id        String?            @db.ObjectId
+  avatar           images?            @relation("ShopAvatar", fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+
+  avatarUrl        String?
   coverBanner      String?
-  address          String
-  opening_hours    String
+  address          String?
+  country          String?
+  opening_hours    String?
   website          String?
   socialLinks      Json[]
   ratings          Float              @default(0)
+  followers        String[]           @default([])
   reviews          shopReviews[]
   sellerId         String             @unique @db.ObjectId
   sellers          sellers            @relation(fields: [sellerId], references: [id])
@@ -63,6 +70,7 @@ model shops {
   products         products[]
   productAnalytics productAnalytics[]
 }
+
 
 model sellers {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
