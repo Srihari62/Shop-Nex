@@ -179,3 +179,25 @@ model productAnalytics {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+enum OrderStatus {
+  Pending
+  Processing
+  Shipped
+  Delivered
+  Cancelled
+}
+
+model orders {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String      @db.ObjectId
+  shopId          String      @db.ObjectId
+  items           Json[]      // Array of { productId, quantity, price, title }
+  total           Float
+  status          OrderStatus @default(Pending)
+  paymentStatus   String      @default("Pending") // e.g., Pending, Paid, Failed
+  paymentMethod   String?     // e.g., Stripe, Cash on Delivery
+  shippingAddress Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}

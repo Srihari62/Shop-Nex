@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createDiscountCode, createProduct, deleteDiscountCode, deleteProduct, deleteProductImage, getAllProducts, getCategories, getDiscountCodes, getFilteredEvents, getFilteredProducts, getFilteredShops, getProductDetails, getShopProducts, restoreProduct, searchProducts, uploadProductImage } from "../controllers/product.contoller";
+import { createDiscountCode, createProduct, deleteDiscountCode, deleteProduct, deleteProductImage, getAllProducts, getCategories, getDiscountCodes, getFilteredEvents, getFilteredProducts, getFilteredShops, getProductDetails, getShopProducts, getTopShops, restoreProduct, searchProducts, uploadProductImage } from "../controllers/product.contoller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
@@ -23,5 +23,5 @@ router.get("/get-filtered-products",getFilteredProducts)
 router.get("/get-filtered-offers",getFilteredEvents)
 router.get("/get-filtered-shops",getFilteredShops)
 router.get("/search-products",searchProducts)
-// router.get("/top-shops",getTopShops)
+router.get("/top-shops",getTopShops)
 export default router;

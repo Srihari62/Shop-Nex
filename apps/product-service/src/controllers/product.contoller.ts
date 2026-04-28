@@ -749,60 +749,60 @@ export const searchProducts = async (
   }
 }
 
-// export const getTopShops = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try{
-//     const topShopsData = await prisma.orders.grroupBy({
-//       by: ["shopId"],
-//       _sum : {
-//         total:true
-//       },
-//       orderBy :{
-//         _sum : {
-//           total: "desc"
-//         }
-//       },
-//       take:10
-//     })
-//     const shopIds = topShopsData.map((item:any) => item.shopId)
-//     const shops = await prisma.shops.findMany({
-//       where: {
-//         id : {
-//           in: shopIds
-//         }
-//       },
-//       select: {
-//         id : true,
-//         name: true,
-//         avatar: true,
-//         coverBanner : true,
-//         address : true,
-//         ratings: true,
-//         // followers: true,
-//         category:true,
+export const getTopShops = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try{
+    const topShopsData = await prisma.orders.groupBy({
+      by: ["shopId"],
+      _sum : {
+        total:true
+      },
+      orderBy :{
+        _sum : {
+          total: "desc"
+        }
+      },
+      take:10
+    })
+    const shopIds = topShopsData.map((item:any) => item.shopId)
+    const shops = await prisma.shops.findMany({
+      where: {
+        id : {
+          in: shopIds
+        }
+      },
+      select: {
+        id : true,
+        name: true,
+        avatar: true,
+        coverBanner : true,
+        address : true,
+        ratings: true,
+        followers: true,
+        category:true,
         
-//       }
-//     })
+      }
+    })
 
-//     const enrichedShops = shops.map((shop:any) => {
-//       const salesData = topShopsData.find((item:any) => item.shopId === shop.id);
-//       return {
-//         ...shop,
-//         totalSales: salesData?._sum.total ?? 0,
-//       };
-//     });
+    const enrichedShops = shops.map((shop:any) => {
+      const salesData = topShopsData.find((item:any) => item.shopId === shop.id);
+      return {
+        ...shop,
+        totalSales: salesData?._sum.total ?? 0,
+      };
+    });
 
-//     const top10Shops = enrichedShops.sort((a:any,b:any) => b.totalSales - a.totalSales).slice(0,10)
+    const top10Shops = enrichedShops.sort((a:any,b:any) => b.totalSales - a.totalSales).slice(0,10)
 
-//     res.status(200).json({
-//       success:true,
-//       shops: top10Shops,
-//     })
-//   } catch (error) {
-//     console.error("Error fetching top shops:", error);
-//     return next(error)
-//   }
-// }
+    res.status(200).json({
+      success:true,
+      shops: top10Shops,
+    })
+  } catch (error) {
+    console.error("Error fetching top shops:", error);
+    return next(error)
+  }
+}
