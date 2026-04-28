@@ -9,7 +9,7 @@ import {
   verifyForgotPasswordOtp,
 } from "../utils/auth.helper";
 import prisma from "@packages/libs/prisma";
-import { AuthenticationError, ValidationError } from "@packages/error-handler";
+import { AuthenticationError, NotFoundError, ValidationError } from "@packages/error-handler";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
@@ -506,6 +506,158 @@ export const getSeller = async (
     res.status(201).json({
       success: true,
       seller,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const addUserAddress = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { label, name, street, city, zip, country, isDefault } = req.body;
+
+    if (!label || !name || !street || !city || !zip || !country) {
+      return next(new ValidationError("All fields are required"));
+    }
+   if (isDefault) {
+    await prisma.address.updateMany({
+      where: {
+        userId,
+        isDefault : true
+      },
+      data: {
+        isDefault : false
+      }
+    })
+   }
+   const newAddress = await prisma.address.create({
+    data: {
+      label,
+      name,
+      street,
+      city,
+      zip,
+      country,
+      isDefault,
+      userId
+    }
+   })
+    res.status(201).json({
+      success: true,
+      address: newAddress,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserAddress = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { addressId } = req.params;
+    if (!addressId) {
+      return next(new ValidationError("Address ID is required"));
+    }
+    const existingAddress = await prisma.address.findFirst({
+      where: { id: addressId ,userId},
+    });
+    if (!existingAddress) {
+      return next(new NotFoundError("Address not found"));
+    }
+    await prisma.address.delete({
+      where: { id: addressId },
+    });
+    res.status(201).json({
+      success: true,
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserAddresses = async(
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id
+    const addresses = await prisma.address.findMany({
+      where: { userId },
+      orderBy: {
+        createdAt: "desc"
+      }
+    })
+    res.status(201).json({
+      success: true,
+      addresses,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const updateUserAddress = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { addressId, label, name, street, city, zip, country, isDefault } = req.body;
+
+    if (!addressId) {
+      return next(new ValidationError("Address ID is required"));
+    }
+
+    const existingAddress = await prisma.address.findFirst({
+      where: { id: addressId, userId },
+    });
+
+    if (!existingAddress) {
+      return next(new NotFoundError("Address not found"));
+    }
+
+    if (isDefault) {
+      await prisma.address.updateMany({
+        where: {
+          userId,
+          isDefault: true,
+          NOT: { id: addressId },
+        },
+        data: {
+          isDefault: false,
+        },
+      });
+    }
+
+    const updatedAddress = await prisma.address.update({
+      where: { id: addressId },
+      data: {
+        label,
+        name,
+        street,
+        city,
+        zip,
+        country,
+        isDefault,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      address: updatedAddress,
     });
   } catch (error) {
     next(error);

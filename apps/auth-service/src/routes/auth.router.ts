@@ -1,14 +1,18 @@
 import express, { Router } from "express";
 import {
+  addUserAddress,
   createShop,
   createStripeConnectLink,
+  deleteUserAddress,
   getSeller,
   getUser,
+  getUserAddresses,
   loginSeller,
   loginUser,
   refreshToken,
   registerSeller,
   resetUserPassword,
+  updateUserAddress,
   userForgotPassword,
   userRegistration,
   verifySellerOtp,
@@ -36,5 +40,11 @@ router.post("/create-shop", createShop);
 router.post("/create-stripe-link", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, getSeller);
+
+//address
+router.post("/add-address", isAuthenticated, addUserAddress)
+router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress)
+router.put("/update-address", isAuthenticated, updateUserAddress)
+router.get("/shipping-addresses", isAuthenticated, getUserAddresses)
 
 export default router;

@@ -15,7 +15,6 @@ model images {
   productId String?   @db.ObjectId
   user      users?    @relation("UserAvatar")
   shops     shops[]   @relation("ShopAvatar")
-
 }
 
 model users {
@@ -44,14 +43,13 @@ model shopReviews {
 }
 
 model shops {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
-  bio              String?
-  description      String?
-  category         String?
-  avatar_id        String?            @db.ObjectId
-  avatar           images?            @relation("ShopAvatar", fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  bio         String?
+  description String?
+  category    String?
+  avatar_id   String? @db.ObjectId
+  avatar      images? @relation("ShopAvatar", fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   avatarUrl        String?
   coverBanner      String?
@@ -70,7 +68,6 @@ model shops {
   products         products[]
   productAnalytics productAnalytics[]
 }
-
 
 model sellers {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -192,12 +189,31 @@ model orders {
   id              String      @id @default(auto()) @map("_id") @db.ObjectId
   userId          String      @db.ObjectId
   shopId          String      @db.ObjectId
-  items           Json[]      // Array of { productId, quantity, price, title }
+  items           Json[] // Array of { productId, quantity, price, title }
   total           Float
   status          OrderStatus @default(Pending)
   paymentStatus   String      @default("Pending") // e.g., Pending, Paid, Failed
-  paymentMethod   String?     // e.g., Stripe, Cash on Delivery
+  paymentMethod   String? // e.g., Stripe, Cash on Delivery
   shippingAddress Json?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+}
+
+enum addressType {
+  Home
+  Office
+  Other
+}
+
+model address {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String      @db.ObjectId
+  label     addressType
+  name      String
+  street    String
+  city      String
+  zip       String
+  country   String
+  isDefault Boolean     @default(true)
+  createdAt DateTime    @default(now())
 }
