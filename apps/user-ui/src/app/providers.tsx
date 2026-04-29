@@ -5,7 +5,17 @@ import React, { useState } from "react";
 import { Toaster } from "react-hot-toast";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000,
+          },
+        },
+      }),
+  );
 
   React.useEffect(() => {
     const fetchLocation = async () => {
@@ -15,7 +25,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
         const response = await fetch("https://ipapi.co/json/");
         const data = await response.json();
-        
+
         if (data.country_name && data.city) {
           localStorage.setItem(
             "user_location",
@@ -23,8 +33,8 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
               country: data.country_name,
               city: data.city,
               region: data.region,
-              timestamp: Date.now()
-            })
+              timestamp: Date.now(),
+            }),
           );
           window.dispatchEvent(new Event("storage_update"));
         }

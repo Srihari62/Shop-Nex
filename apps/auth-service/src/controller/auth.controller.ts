@@ -195,6 +195,7 @@ export const refreshToken = async (
     } else if (decoded.role === "user") {
       setCookie(res, "accessToken", newAccessToken);
     }
+    console.log(decoded.role,"Role")
     req.role = decoded.role;
     return res.status(201).json({ success: true });
   } catch (error) {

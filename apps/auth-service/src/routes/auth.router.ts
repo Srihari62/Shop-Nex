@@ -20,7 +20,7 @@ import {
   verifyUserOtp,
 } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
-import { isSeller } from "@packages/middleware/authorizeRoles";
+// import { isSeller } from "@packages/middleware/authorizeRoles";
 
 const router: Router = express.Router();
 

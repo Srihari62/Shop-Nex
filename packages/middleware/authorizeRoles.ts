@@ -1,7 +1,8 @@
-import { AuthenticationError } from "@packages/error-handler";
+import { AuthenticationError } from "../error-handler";
 import { NextFunction, Response } from "express";
 
 export const isSeller = (req: any, res: Response, next: NextFunction) => {
+    console.log(req.role,"ROLEEEE");
   if (req.role !== "seller") {
     return next(new AuthenticationError("Access denied. Seller access only."));
   }

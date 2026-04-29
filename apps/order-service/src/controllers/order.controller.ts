@@ -319,3 +319,138 @@ export const createCODOrder = async (req: any, res: Response, next: NextFunction
         res.status(500).json({ message: error.message });
     }
 };
+
+
+export const getSellerOrders = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        if (req.role !== "seller" || !req.seller) {
+            return res.status(401).json({ message: "Access denied. Seller access only." });
+        }
+
+        const shop = await prisma.shops.findUnique({
+            where: {
+                sellerId: req.seller.id
+            }
+        })
+        if(!shop) return next(new ValidationError("Shop not found"));
+
+        const orders = await prisma.orders.findMany({
+            where: {
+                shopId: shop.id
+            },include: {
+                users: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        avatar: true
+                    }
+                }
+            }, orderBy: {
+                createdAt: "desc"
+            }
+        })
+            
+        res.status(200).json({
+            success: true,
+            orders
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+//get order details
+export const getOrderDetails = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const orderId = req.params.id;
+        if(!orderId) return next(new ValidationError("Order ID is required"));
+
+        const order = await prisma.orders.findUnique({
+            where: {
+                id: orderId
+            },include: {
+                items: true
+            }
+        })
+        if(!order) return next(new ValidationError("Order not found"));
+        const shippingAddress = order?.shippingAddressId ? await prisma.address.findUnique({
+            where: {
+                id: order?.shippingAddressId
+            }
+        }) : null
+
+        const coupon = order?.couponCode ? await prisma.discount_codes.findUnique({
+            where: {
+                discountCode: order?.couponCode
+            }
+        }) : null
+        //fetch all products details in one go 
+        const productIds = order.items.map((item: any) => item.productId);
+        const products = await prisma.products.findMany({
+            where: {
+                id: { in: productIds }
+            },
+            select : {
+                id: true,
+                title: true,
+                images: true
+            }
+        })
+
+        const productMap = new Map(products.map((p) => [p.id,p]))
+        const items = order.items.map((item) => ({
+                ...item,
+                selectedOptions: item.selectedOptions,
+                product: productMap.get(item.productId) || null,
+        }))
+
+        res.status(200).json({
+            success: true,
+            order: {
+                ...order,
+                items,
+                shippingAddress,
+                couponCode: coupon
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+//update delivey status 
+
+export const updateDeliveryStatus = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const {orderID} = req.params;
+        const { deliveryStatus } = req.body;
+        if(!orderID || !deliveryStatus) return next(new ValidationError("Order ID and status are required"));
+
+        const allowedStatus = ["Ordered","Packed","Shipped","Out for Delivery","Delivered"];
+        if(!allowedStatus.includes(deliveryStatus)) return next(new ValidationError("Invalid delivery status"));
+        const existingOrder = await prisma.orders.findUnique({
+            where: {
+                id: orderID
+            }
+        })
+        if(!existingOrder) return next(new ValidationError("Order not found"));
+
+        const updatedOrder = await prisma.orders.update({
+            where: {
+                id: orderID
+            },
+            data: {
+                deliveryStatus,
+                updatedAt: new Date()
+            }
+        })
+        res.status(200).json({
+            success: true,
+            order  : updatedOrder,
+            message: "Order status updated successfully"
+        })
+    } catch (error) {
+        next(error)
+    }
+}
