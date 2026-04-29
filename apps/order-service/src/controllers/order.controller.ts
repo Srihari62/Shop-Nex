@@ -198,10 +198,32 @@ export const createPaymentIntent = async (req: any, res: Response, next: NextFun
     console.log(`[Stripe] Creating intent for session: ${sessionId}, amount: ${amount}`);
     
     try {
+        // Fetch session data from Redis to get the shipping address ID
+        const sessionData = await redis.get(`payment-session:${sessionId}`);
+        if (!sessionData) {
+            return res.status(404).json({ message: "Session not found or expired" });
+        }
+        const session = JSON.parse(sessionData);
+
+        // Fetch the shipping address details
+        const addr = await prisma.address.findUnique({
+            where: { id: session.shippingAddressId }
+        });
+
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(Number(amount) * 100),
-            currency: 'usd',
-            payment_method_types: ["card"],
+            currency: 'inr', // Required for UPI in India
+            description: `Marketplace Order: ${sessionId}`,
+            shipping: addr ? {
+                name: addr.name,
+                address: {
+                    line1: addr.street,
+                    city: addr.city,
+                    postal_code: addr.zip,
+                    country: addr.country || 'IN',
+                }
+            } : undefined,
+            automatic_payment_methods: { enabled: true },
             metadata: { sessionId, userId: req.user.id }
         });
         

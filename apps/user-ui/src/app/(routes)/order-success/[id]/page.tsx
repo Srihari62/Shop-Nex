@@ -15,18 +15,22 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useStore } from "apps/user-ui/src/store";
 
 const OrderSuccessPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { clearCart } = useStore();
 
   useEffect(() => {
     const fetchSession = async () => {
       try {
         const res = await axiosInstance.get(`/order/api/verify-payment-session?sessionId=${id}`);
         setSession(res.data.session);
+        // Clear cart immediately once we verify the session was successful
+        clearCart();
       } catch (error) {
         console.error("Failed to verify session:", error);
       } finally {
@@ -35,7 +39,7 @@ const OrderSuccessPage = () => {
     };
 
     if (id) fetchSession();
-  }, [id]);
+  }, [id, clearCart]);
 
   if (loading) {
     return (

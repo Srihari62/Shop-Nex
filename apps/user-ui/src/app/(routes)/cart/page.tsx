@@ -53,6 +53,14 @@ const CartPage = () => {
   );
   const shipping = cart.length > 0 ? 15 : 0;
   const total = subtotal + shipping;
+  
+  // Reset session if cart changes to ensure payment accuracy
+  React.useEffect(() => {
+    if (sessionId) {
+      setSessionId(null);
+      setSessionData(null);
+    }
+  }, [cart]);
 
   const handleCheckoutClick = () => {
     if (!user) {
@@ -94,8 +102,8 @@ const CartPage = () => {
   const handlePaymentComplete = (method: string) => {
     setIsPaymentOpen(false);
     toast.success(`Order placed successfully with ${method}!`);
-    clearCart();
-
+    // NOTE: clearCart is now handled in the OrderSuccessPage to prevent UI flash
+    
     // Redirect to success page
     if (sessionId) {
       router.push(`/order-success/${sessionId}`);
@@ -211,7 +219,7 @@ const CartPage = () => {
                         </h3>
                         <p className="text-slate-400 text-xs font-medium uppercase tracking-wider">
                           Seller:{" "}
-                          <span className="text-[#47718F]">E-Shop Premium</span>
+                          <span className="text-[#47718F]">{item.shop?.name || item.sellerName || "Marketplace Seller"}</span>
                         </p>
                       </div>
                       <button
@@ -258,9 +266,16 @@ const CartPage = () => {
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">
                           Unit Price
                         </p>
-                        <span className="text-2xl font-black text-[#365870]">
-                          ${item.sale_price || item.price}
-                        </span>
+                        <div className="flex flex-col items-end">
+                          {item.regular_price > (item.sale_price || item.price) && (
+                            <span className="text-xs text-slate-300 line-through font-bold">
+                              ${item.regular_price.toFixed(2)}
+                            </span>
+                          )}
+                          <span className="text-2xl font-black text-[#365870]">
+                            ${(item.sale_price || item.price).toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
