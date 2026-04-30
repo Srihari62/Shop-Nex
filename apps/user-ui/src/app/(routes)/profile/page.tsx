@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import ProfileSidebar from "../../../shared/components/profile/ProfileSidebar";
 import ProfileHeader from "../../../shared/components/profile/ProfileHeader";
 import UserProfile from "../../../shared/components/profile/UserProfile";
 import ShippingAddress from "../../../shared/components/profile/ShippingAddress";
+import MyOrders from "../../../shared/components/profile/MyOrders";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { Loader2, Gift, Award, Settings, CreditCard, HeadphonesIcon } from "lucide-react";
 
@@ -13,13 +16,20 @@ const Page = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("active") || "profile";
-  const { user, isLoading } = useUser();
+  const { user, isLoading: userLoading } = useUser();
+  const { data: ordersData, isLoading: ordersLoading } = useQuery({
+    queryKey: ["user-orders"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/order/api/get-user-orders");
+      return res.data;
+    },
+  });
 
   const handleTabChange = (tab: string) => {
     router.push(`/profile?active=${tab}`);
   };
 
-  if (isLoading) {
+  if (userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
         <Loader2 className="animate-spin text-[#47718F]" size={40} />
@@ -27,12 +37,21 @@ const Page = () => {
     );
   }
 
+  const orders = ordersData?.orders || [];
+  const stats = {
+    total: orders.length,
+    processing: orders.filter((o: any) => o.status === "Processing" || o.deliveryStatus === "Ordered").length,
+    completed: orders.filter((o: any) => o.deliveryStatus === "Delivered").length,
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
         return <UserProfile />;
       case "shipping-address":
         return <ShippingAddress />;
+      case "orders":
+        return <MyOrders />;
       default:
         return (
           <div className="py-20 flex flex-col items-center justify-center text-center bg-white rounded-[40px] border border-slate-100 shadow-sm">
@@ -51,7 +70,7 @@ const Page = () => {
       <div className="w-[90%] md:w-[80%] mx-auto space-y-10">
         
         {/* ─── Header ─── */}
-        <ProfileHeader userName={user?.name || "User"} />
+        <ProfileHeader stats={stats} />
 
         <div className="flex flex-col lg:flex-row gap-10">
           {/* ─── Sidebar ─── */}

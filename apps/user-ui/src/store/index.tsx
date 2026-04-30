@@ -10,6 +10,9 @@ type Product = {
   image: string;
   quantity?: number;
   shopId: string;
+  discount_details?: any[];
+  regular_price?: number;
+  category?: string;
 };
 
 type Store = {
@@ -45,6 +48,9 @@ type Store = {
     location: any,
     deviceInfo: string,
   ) => void;
+  applyCoupon: (coupon: any) => void;
+  removeCoupon: (code: string) => void;
+  appliedCoupons: any[];
   clearCart: () => void;
 };
 
@@ -160,7 +166,22 @@ export const useStore = create<Store>()(
           city: location?.city || "Unknown",
         });
       },
-      clearCart: () => set({ cart: [] }),
+      appliedCoupons: [],
+      applyCoupon: (coupon) => {
+        set((state) => ({
+          appliedCoupons: state.appliedCoupons.some(
+            (c) => c.discountCode === coupon.discountCode,
+          )
+            ? state.appliedCoupons
+            : [...state.appliedCoupons, coupon],
+        }));
+      },
+      removeCoupon: (code) => {
+        set((state) => ({
+          appliedCoupons: state.appliedCoupons.filter((c) => c.discountCode !== code),
+        }));
+      },
+      clearCart: () => set({ cart: [], appliedCoupons: [] }),
     }),
     { name: "store-storage" },
   ),

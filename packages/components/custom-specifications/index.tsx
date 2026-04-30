@@ -16,50 +16,67 @@ const CustomSpecifications = ({ control, errors }: any) => {
       </label>
       <div className="flex flex-col gap-3">
         {fields?.map((item, index) => (
-          <div key={index} className="flex gap-2 items-center">
-            <Controller
-              name={`custom_specifications.${index}.name`}
-              control={control}
-              rules={{ required: "Specification name is required" }}
-              render={(field) => (
-                <Input
-                  label="Specification Name"
-                  placeholder="e.g.., Battery Life, Weight, Material"
-                  {...field}
-                />
-              )}
-            />
-            <Controller
-              name={`custom_specifications.${index}.value`}
-              control={control}
-              rules={{ required: "Specification Value is required" }}
-              render={(field) => (
-                <Input
-                  label="Specification Value"
-                  placeholder="e.g.., 4000mah, 1.5kg, Cotton"
-                  {...field}
-                />
-              )}
-            />
-            <button
-              type="button"
-              className="text-ted-500 hover:text-red-700"
-              onClick={() => remove(index)}
-            >
-              <Trash2 size={20} />
-            </button>
+          <div key={item.id} className="flex flex-col w-full">
+            <div className="flex gap-2 items-center">
+              <Controller
+                name={`custom_specifications.${index}.name`}
+                control={control}
+                rules={{ required: "Specification name is required" }}
+                render={({ field }) => (
+                  <div className="flex-1">
+                    <Input
+                      label="Specification Name"
+                      placeholder="e.g.., Battery Life, Weight, Material"
+                      {...field}
+                    />
+                    {(errors as any).custom_specifications?.[index]?.name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {(errors as any).custom_specifications[index].name.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+              <Controller
+                name={`custom_specifications.${index}.value`}
+                control={control}
+                rules={{ required: "Specification Value is required" }}
+                render={({ field }) => (
+                  <div className="flex-1">
+                    <Input
+                      label="Specification Value"
+                      placeholder="e.g.., 4000mah, 1.5kg, Cotton"
+                      {...field}
+                    />
+                    {(errors as any).custom_specifications?.[index]?.value && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {(errors as any).custom_specifications[index].value.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+              <button
+                type="button"
+                className="text-red-500 hover:text-red-700 mt-6"
+                onClick={() => remove(index)}
+              >
+                <Trash2 size={20} />
+              </button>
+            </div>
           </div>
         ))}
         <button
-          className="flex items-center text-blue-500 hover:text-blue-600"
+          type="button"
+          className="flex items-center text-blue-500 hover:text-blue-600 mt-2"
           onClick={() => append({ name: "", value: "" })}
         >
-          <PlusCircle size={20} /> Add Specification
+          <PlusCircle size={20} className="mr-1" /> Add Specification
         </button>
       </div>
-      {errors.custom_specifications && (
+      {(errors as any).custom_specifications && !Array.isArray((errors as any).custom_specifications) && (
         <p className="text-red-500 text-xs mt-1">
-          {errors.custom_specifications.message as string}
+          {(errors as any).custom_specifications.message}
         </p>
       )}
     </div>

@@ -21,6 +21,29 @@ interface UploadedImage {
   file_url: string;
 }
 
+interface ProductForm {
+  title: string;
+  description: string;
+  tags: string;
+  warranty: string;
+  slug: string;
+  brand?: string;
+  cash_on_delivery: string;
+  category: string;
+  subCategory: string;
+  detailed_description: string;
+  video_url?: string;
+  regular_price: number;
+  sale_price: number;
+  stock: number;
+  images: any[];
+  colors: string[];
+  sizes: string[];
+  custom_specifications: any[];
+  custom_properties: any[];
+  discountCodes: string[];
+}
+
 const CreateProduct = () => {
   const {
     register,
@@ -29,7 +52,25 @@ const CreateProduct = () => {
     setValue,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<ProductForm>({
+    defaultValues: {
+      cash_on_delivery: "yes",
+      images: [null],
+      custom_specifications: [],
+      custom_properties: [],
+      colors: [],
+      sizes: [],
+      discountCodes: [],
+      title: "",
+      description: "",
+      tags: "",
+      warranty: "",
+      slug: "",
+      category: "",
+      subCategory: "",
+      detailed_description: "",
+    },
+  });
 
   const [processing, setProcessing] = useState(false);
   const [activeEffect, setActiveEffect] = useState<string | null>(null);
@@ -91,7 +132,8 @@ const CreateProduct = () => {
       await axiosInstance.post("/product/api/create-product", data);
       router.push("/dashboard/all-products");
     } catch (error: any) {
-      toast.error(error?.data.message);
+      const message = error?.response?.data?.message || error?.data?.message || "An error occurred";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -459,12 +501,24 @@ const CreateProduct = () => {
                   rules={{
                     required: "Detailed Description is required",
                     validate: (value) => {
-                      const wordCount = value
+                      if (!value || typeof value !== "string") return "Detailed Description is required";
+                      
+                      // Strip HTML tags and replace common entities
+                      const cleanText = value
+                        .replace(/<[^>]*>/g, " ")
+                        .replace(/&nbsp;/g, " ")
+                        .replace(/&amp;/g, "&")
+                        .replace(/&lt;/g, "<")
+                        .replace(/&gt;/g, ">")
+                        .trim();
+                        
+                      const wordCount = cleanText
                         .split(/\s+/)
-                        .filter((word: string) => word).length;
+                        .filter((word) => word.length > 0).length;
+
                       return (
                         wordCount >= 100 ||
-                        "Detailed description must be at least 100 words"
+                        `Detailed description must be at least 100 words (Currently ${wordCount} words)`
                       );
                     },
                   }}
@@ -475,6 +529,11 @@ const CreateProduct = () => {
                     />
                   )}
                 />
+                {(errors as any).detailed_description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {(errors as any).detailed_description.message}
+                  </p>
+                )}
               </div>
 
               <div className="mt-2">

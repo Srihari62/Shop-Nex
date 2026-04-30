@@ -8,8 +8,7 @@ import { useStore } from "apps/user-ui/src/store";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
-
-
+import toast from "react-hot-toast";
 
 interface ProductDetailsCardProps {
   product: any;
@@ -41,11 +40,8 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
   const cart = useStore((state: any) => state.cart);
   const isInCart = cart.some((item: any) => item?.id === product?.id);
 
-
-
-
   const [activeImage, setActiveImage] = useState(
-    product?.images?.[0]?.url || "https://via.placeholder.com/600"
+    product?.images?.[0]?.url || "https://via.placeholder.com/600",
   );
 
   useEffect(() => {
@@ -63,7 +59,6 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
   }, []);
 
   if (!mounted || !product) return null;
-
 
   const rating = product?.ratings ?? product?.rating ?? 5;
   const price = product?.sale_price ?? product?.price ?? 0;
@@ -87,10 +82,10 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
       {/* Modal Content */}
       <div className="relative w-full max-w-5xl bg-gradient-to-br from-[#47718F] via-[#47718F] to-[#365870] rounded-[2rem] overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-white/20 animate-zoom-in flex flex-col md:flex-row max-h-[95vh] overflow-y-auto md:overflow-hidden">
         {/* Close Icon */}
-        <X 
-          size={18} 
+        <X
+          size={18}
           onClick={onClose}
-          className="absolute top-5 right-5 z-[100] text-white/50 hover:text-white cursor-pointer transition-colors" 
+          className="absolute top-5 right-5 z-[100] text-white/50 hover:text-white cursor-pointer transition-colors"
         />
 
         {/* Left Section: Images */}
@@ -108,7 +103,7 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
           {/* Thumbnails */}
           <div className="flex gap-4 self-start overflow-x-auto pb-2 w-full custom-scrollbar">
             {product?.images?.map((img: any, idx: number) => (
-              <div 
+              <div
                 key={idx}
                 onClick={() => setActiveImage(img.url)}
                 className={`w-20 h-20 shrink-0 rounded-xl border-2 transition-all overflow-hidden bg-white/10 cursor-pointer shadow-lg ${activeImage === img.url ? "border-white scale-105 shadow-white/20" : "border-white/10 grayscale hover:grayscale-0 hover:border-white/40"}`}
@@ -130,14 +125,18 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
         <div className="w-full md:w-1/2 p-8 md:p-12 md:pt-20 text-white flex flex-col relative">
           {/* Seller Header */}
           <div className="flex items-center justify-between mb-10">
-
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 border-2 border-white/20 flex items-center justify-center shadow-lg text-white font-bold text-xl uppercase">
-                {product?.shop?.name?.[0] || product?.seller?.name?.[0] || product?.title?.[0] || "S"}
+                {product?.shop?.name?.[0] ||
+                  product?.seller?.name?.[0] ||
+                  product?.title?.[0] ||
+                  "S"}
               </div>
               <div>
                 <h4 className="font-bold text-sm leading-none mb-1">
-                  {product?.shop?.name || product?.seller?.name || "Premium Seller"}
+                  {product?.shop?.name ||
+                    product?.seller?.name ||
+                    "Premium Seller"}
                 </h4>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -150,7 +149,7 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                   ))}
                 </div>
                 <p className="text-[10px] text-white/50 mt-1 flex items-center gap-1">
-                  <span className="w-1 h-1 rounded-full bg-white/30" /> 
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
                   {product?.shop?.address || "Verified Merchant"}
                 </p>
               </div>
@@ -159,11 +158,7 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
               <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               Chat with Seller
             </button>
-
-
           </div>
-
-
 
           {/* Product Info */}
           <div className="mb-6">
@@ -197,11 +192,13 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                       selectedSize === size
                         ? "bg-white text-[#365870] border-white shadow-xl scale-110 z-10"
                         : isAvailable
-                        ? "bg-white/5 text-white border-white/10 hover:bg-white/10"
-                        : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed overflow-hidden"
+                          ? "bg-white/5 text-white border-white/10 hover:bg-white/10"
+                          : "bg-white/5 text-white/20 border-white/5 cursor-not-allowed overflow-hidden"
                     }`}
                   >
-                    <span className={!isAvailable ? "opacity-30" : ""}>{size}</span>
+                    <span className={!isAvailable ? "opacity-30" : ""}>
+                      {size}
+                    </span>
                     {!isAvailable && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="w-full h-[1px] bg-white/20 rotate-45" />
@@ -211,9 +208,36 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                 );
               })}
             </div>
-
           </div>
 
+          {/* Coupons Section */}
+          {product?.discount_details && product.discount_details.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-3">
+                Available Coupons:
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {product.discount_details.map((discount: any) => (
+                  <div
+                    key={discount.id}
+                    className="bg-white/5 border border-dashed border-white/20 rounded-xl p-2 flex items-center gap-3 group relative cursor-pointer hover:bg-white/10 transition-all"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigator.clipboard.writeText(discount.discountCode);
+                      toast.success(`Copied code: ${discount.discountCode}`);
+                    }}
+                  >
+                    <div className="bg-white/10 text-white text-[10px] font-bold px-2 py-1 rounded">
+                      {discount.discountValue}% OFF
+                    </div>
+                    <div className="text-sm font-black text-white tracking-wider">
+                      {discount.discountCode}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Pricing */}
           <div className="flex items-center gap-4 mb-8">
@@ -230,7 +254,6 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                 </span>
               </div>
             )}
-
           </div>
 
           {/* Action Row */}
@@ -255,22 +278,40 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
             </div>
 
             {/* Add to Cart */}
-            <button 
+            <button
               onClick={() => {
                 if (isInCart) {
                   removeFromCart(product?.id, user, location, deviceInfo);
                 } else {
-                  addToCart({ ...product, quantity }, user, location, deviceInfo);
+                  addToCart(
+                    {
+                      ...product,
+                      quantity,
+                      price: product.sale_price || product.price,
+                      image:
+                        product.images?.[0]?.url ||
+                        "https://via.placeholder.com/300",
+                      discount_details: product.discount_details,
+                      regular_price: product.regular_price,
+                      category: product.category,
+                    },
+                    user,
+                    location,
+                    deviceInfo,
+                  );
                 }
               }}
               className={`flex-1 ${isInCart ? "bg-indigo-600 hover:bg-indigo-700" : "bg-red-600 hover:bg-red-700"} text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-3 active:scale-95 uppercase tracking-widest text-xs`}
             >
-              <ShoppingCart size={18} fill={isInCart ? "currentColor" : "none"} />
+              <ShoppingCart
+                size={18}
+                fill={isInCart ? "currentColor" : "none"}
+              />
               {isInCart ? "Remove from Cart" : "Add to Cart"}
             </button>
 
             {/* Wishlist */}
-            <button 
+            <button
               onClick={() => {
                 if (isWishlisted) {
                   removeFromWishlist(product?.id, user, location, deviceInfo);
@@ -278,7 +319,6 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                   addToWishlist(product, user, location, deviceInfo);
                 }
               }}
-
               className="p-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/10 transition-all shadow-lg"
             >
               <Heart
@@ -287,7 +327,6 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                 className={`${isWishlisted ? "text-red-500" : "text-white/70"} hover:text-red-500 transition-colors`}
               />
             </button>
-
           </div>
 
           {/* Footer Info */}

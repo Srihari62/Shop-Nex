@@ -407,10 +407,28 @@ export const getAllProducts = async (
       })
     ])
 
+    // Attach discount details to products
+    const enrichProductsList = async (productList: any[]) => {
+      return await Promise.all(productList.map(async (product) => {
+        if (product.discount_codes && product.discount_codes.length > 0) {
+          const discountDetails = await prisma.discount_codes.findMany({
+            where: {
+              id: { in: product.discount_codes as string[] }
+            }
+          });
+          return { ...product, discount_details: discountDetails };
+        }
+        return product;
+      }));
+    };
+
+    const enrichedProducts = await enrichProductsList(products);
+    const enrichedTop10 = await enrichProductsList(top10Products);
+
     res.status(200).json({
-      products,
+      products: enrichedProducts,
       top10By: type === 'latest' ? 'latest' : 'topRatings',
-      top10Products,
+      top10Products: enrichedTop10,
       total,
       currentPage: page,
       totalPages: Math.ceil(total/limit)
@@ -435,6 +453,16 @@ export const getProductDetails = async (
         shop: true
       }
     })
+
+    if (product && product.discount_codes && product.discount_codes.length > 0) {
+      const discountDetails = await prisma.discount_codes.findMany({
+        where: {
+          id: { in: product.discount_codes as string[] }
+        }
+      });
+      (product as any).discount_details = discountDetails;
+    }
+
     res.status(200).json({
       success:true,
       product
@@ -522,10 +550,142 @@ export const getFilteredProducts = async (
       prisma.products.count({ where: filters }),
     ]);
 
+    // Attach discount details to products
+    const enrichedProducts = await Promise.all(products.map(async (product) => {
+      if (product.discount_codes && product.discount_codes.length > 0) {
+        const discountDetails = await prisma.discount_codes.findMany({
+          where: {
+            id: { in: product.discount_codes as string[] }
+          }
+        });
+        return { ...product, discount_details: discountDetails };
+      }
+      return product;
+    }));
+
     const totalPages = Math.ceil(total / parsedLimit);
     res.status(200).json({
       success: true,
-      products,
+      products: enrichedProducts,
+      pagination: {
+        total,
+        page: parsedPage,
+        totalPages,
+      }
+    });
+    
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export const getFilteredOffers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      priceRange,
+      colors = [],
+      sizes = [],
+      categories = [],
+      page = 1,
+      limit = 12,
+      sort = "newest",
+      q = ""
+    } = req.query;
+    
+    const parsedPriceRange = typeof priceRange === "string" ? priceRange.split(',').map(Number) : [0, 1000000];
+    const parsedPage = Number(page);
+    const parsedLimit = Number(limit);
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const now = new Date();
+    const filters: Record<string, any> = {
+      isDeleted: false,
+      sale_price: {
+        gte: parsedPriceRange[0],
+        lte: parsedPriceRange[1],
+      },
+      OR: [
+        { discount_codes: { isEmpty: false } },
+        {
+          AND: [
+            { starting_date: { lte: now } },
+            { ending_date: { gte: now } }
+          ]
+        }
+      ]
+    };
+
+    if (q) {
+      const searchQuery = {
+        OR: [
+          { title: { contains: String(q), mode: "insensitive" } },
+          { description: { contains: String(q), mode: "insensitive" } },
+          { tags: { has: String(q) } }
+        ]
+      };
+      // Combine with existing OR if necessary
+      filters.AND = [searchQuery];
+    }
+
+    if (categories && (Array.isArray(categories) ? categories.length > 0 : String(categories).length > 0)) {
+      filters.category = {
+        in: Array.isArray(categories) ? categories : String(categories).split(",")
+      };
+    }
+    
+    if (colors && (Array.isArray(colors) ? colors.length > 0 : String(colors).length > 0)) {
+      filters.colors = {
+        hasEvery: Array.isArray(colors) ? colors : String(colors).split(",")
+      };
+    }
+    
+    if (sizes && (Array.isArray(sizes) ? sizes.length > 0 : String(sizes).length > 0)) {
+      filters.sizes = {
+        hasEvery: Array.isArray(sizes) ? sizes : String(sizes).split(",")
+      };
+    }
+
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price_asc") orderBy = { sale_price: "asc" };
+    if (sort === "price_desc") orderBy = { sale_price: "desc" };
+    if (sort === "popular") orderBy = { ratings: "desc" };
+
+    const [products, total] = await Promise.all([
+      prisma.products.findMany({
+        skip,
+        take: parsedLimit,
+        include: {
+          images: true,
+          shop: true
+        },
+        where: filters,
+        orderBy
+      }),
+      prisma.products.count({ where: filters }),
+    ]);
+
+    // Attach discount details
+    const enrichedProducts = await Promise.all(products.map(async (product) => {
+      if (product.discount_codes && product.discount_codes.length > 0) {
+        const discountDetails = await prisma.discount_codes.findMany({
+          where: {
+            id: { in: product.discount_codes as string[] }
+          }
+        });
+        return { ...product, discount_details: discountDetails };
+      }
+      return product;
+    }));
+
+    const totalPages = Math.ceil(total / parsedLimit);
+    res.status(200).json({
+      success: true,
+      products: enrichedProducts,
       pagination: {
         total,
         page: parsedPage,
@@ -728,10 +888,9 @@ export const searchProducts = async (
           }
         ]
       },
-      select : {
-        id : true,
-        title:true,
-        slug:true
+      include : {
+        images: true,
+        shop: true
       },
       take: 10,
       orderBy: {
@@ -739,9 +898,22 @@ export const searchProducts = async (
       }
     })
 
+    // Attach discount details
+    const enrichedProducts = await Promise.all(products.map(async (product) => {
+      if (product.discount_codes && product.discount_codes.length > 0) {
+        const discountDetails = await prisma.discount_codes.findMany({
+          where: {
+            id: { in: product.discount_codes as string[] }
+          }
+        });
+        return { ...product, discount_details: discountDetails };
+      }
+      return product;
+    }));
+
     res.status(200).json({
       success:true,
-      products,
+      products: enrichedProducts,
     })
 
   } catch (error) {

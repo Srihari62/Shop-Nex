@@ -454,3 +454,71 @@ export const updateDeliveryStatus = async (req: any, res: Response, next: NextFu
         next(error)
     }
 }
+
+export const getUserOrders = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.user.id;
+        const orders = await prisma.orders.findMany({
+            where: {
+                userId: userId
+            },
+            include: {
+                items: true,
+                users: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                },
+                shops: {
+                    select: {
+                        name: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        });
+
+        // 1. Fetch address details manually
+        const ordersWithAddress = await Promise.all(orders.map(async (order: any) => {
+            if (order.shippingAddressId) {
+                const addr = await prisma.address.findUnique({
+                    where: { id: order.shippingAddressId }
+                });
+                return { ...order, shippingAddress: addr };
+            }
+            return { ...order, shippingAddress: null };
+        }));
+
+        // 2. Fetch product details for all items
+        const allProductIds = Array.from(new Set(ordersWithAddress.flatMap((o: any) => o.items.map((i: any) => i.productId))));
+        const products = await prisma.products.findMany({
+            where: {
+                id: { in: allProductIds }
+            },
+            select: {
+                id: true,
+                title: true,
+                images: true,
+                slug: true
+            }
+        });
+
+        const productMap = new Map(products.map((p: any) => [p.id, p]));
+
+        // 3. Assemble final response
+        const finalOrders = ordersWithAddress.map((order: any) => ({
+            ...order,
+            items: order.items.map((item: any) => ({
+                ...item,
+                product: productMap.get(item.productId) || null
+            }))
+        }));
+
+        res.status(200).json({ orders: finalOrders });
+    } catch (error) {
+        next(error)
+    }
+}

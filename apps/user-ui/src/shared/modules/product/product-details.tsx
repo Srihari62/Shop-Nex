@@ -63,6 +63,9 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
       image: productDetails.images?.[0]?.url || "/placeholder-image.jpg",
       shopId: productDetails.shopId,
       quantity: quantity,
+      discount_details: productDetails.discount_details,
+      regular_price: productDetails.regular_price,
+      category: productDetails.category,
     };
     addToCart(productForStore, user, location, deviceInfo);
     toast.success("Added to cart!");
@@ -241,6 +244,35 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                   {productDetails?.stock})
                 </span>
               </div>
+
+              {/* Coupons Section */}
+              {productDetails?.discount_details && productDetails.discount_details.length > 0 && (
+                <div className="pt-4 space-y-3">
+                  <span className="text-gray-500 text-sm block">Available Coupons:</span>
+                  <div className="flex flex-wrap gap-3">
+                    {productDetails.discount_details.map((discount: any) => (
+                      <div 
+                        key={discount.id}
+                        className="bg-indigo-50 border-2 border-dashed border-indigo-200 rounded-lg p-2 flex items-center gap-3 group relative cursor-pointer hover:border-indigo-400 transition-colors"
+                        onClick={() => {
+                          navigator.clipboard.writeText(discount.discountCode);
+                          toast.success(`Copied code: ${discount.discountCode}`);
+                        }}
+                      >
+                        <div className="bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded">
+                          {discount.discountValue}% OFF
+                        </div>
+                        <div className="text-sm font-black text-indigo-700 tracking-wider">
+                          {discount.discountCode}
+                        </div>
+                        <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[8px] px-1.5 py-0.5 rounded shadow-lg">
+                          Click to Copy
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-3 pt-6 flex-wrap md:flex-nowrap">
                 <button

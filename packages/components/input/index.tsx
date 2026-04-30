@@ -38,7 +38,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

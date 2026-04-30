@@ -113,6 +113,24 @@ const ProductCard = ({ product, isEvent }: ProductCardProps) => {
               {product?.category || "General"}
             </div>
           </div>
+
+          {/* Coupons Display */}
+          {product?.discount_details && product.discount_details.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {product.discount_details.slice(0, 2).map((discount: any) => (
+                <div 
+                  key={discount.id}
+                  className="text-[8px] font-bold bg-indigo-500/20 text-indigo-200 px-1.5 py-0.5 rounded border border-indigo-500/30 flex items-center gap-1"
+                >
+                  <span className="text-white">{discount.discountCode}</span>
+                  <span>({discount.discountValue}%)</span>
+                </div>
+              ))}
+              {product.discount_details.length > 2 && (
+                <span className="text-[8px] text-white/40">+{product.discount_details.length - 2} more</span>
+              )}
+            </div>
+          )}
         </div>
       </Link>
 

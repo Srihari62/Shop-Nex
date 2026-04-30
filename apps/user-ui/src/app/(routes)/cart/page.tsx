@@ -46,14 +46,57 @@ const CartPage = () => {
   const [sessionData, setSessionData] = useState<any>(null);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
 
+  // Coupon Logic from Store (Persistent)
+  const appliedCoupons = useStore((state: any) => state.appliedCoupons);
+  const applyCoupon = useStore((state: any) => state.applyCoupon);
+  const removeCoupon = useStore((state: any) => state.removeCoupon);
+
+  // Extract all unique AVAILABLE coupons from cart items that aren't applied yet
+  const availableCoupons = React.useMemo(() => {
+    const coupons: any[] = [];
+    const seenCodes = new Set();
+    const appliedCodes = new Set(appliedCoupons.map((c: any) => c.discountCode));
+
+    cart.forEach((item: any) => {
+      if (item.discount_details) {
+        item.discount_details.forEach((d: any) => {
+          if (!seenCodes.has(d.discountCode) && !appliedCodes.has(d.discountCode)) {
+            seenCodes.add(d.discountCode);
+            coupons.push(d);
+          }
+        });
+      }
+    });
+    return coupons;
+  }, [cart, appliedCoupons]);
+
   const subtotal = cart.reduce(
     (acc: number, item: any) =>
       acc + (item.sale_price || item.price) * (item.quantity || 1),
     0,
   );
-  const shipping = cart.length > 0 ? 15 : 0;
-  const total = subtotal + shipping;
   
+  // Calculate discount by iterating over each item and checking all applied coupons
+  const discountAmount = React.useMemo(() => {
+    if (!appliedCoupons || appliedCoupons.length === 0) return 0;
+    
+    return cart.reduce((acc: number, item: any) => {
+      // Find if ANY applied coupon matches this item
+      const applicableCoupon = appliedCoupons.find((coupon: any) => 
+        item.discount_details?.some((d: any) => d.discountCode === coupon.discountCode)
+      );
+      
+      if (applicableCoupon) {
+        const itemTotal = (item.sale_price || item.price) * (item.quantity || 1);
+        return acc + (itemTotal * applicableCoupon.discountValue) / 100;
+      }
+      return acc;
+    }, 0);
+  }, [appliedCoupons, cart]);
+
+  const shipping = cart.length > 0 ? 15 : 0;
+  const total = subtotal + shipping - discountAmount;
+
   // Reset session if cart changes to ensure payment accuracy
   React.useEffect(() => {
     if (sessionId) {
@@ -80,7 +123,9 @@ const CartPage = () => {
         {
           cart,
           selectedAddressId: addressId,
-          // coupon: null, // Add coupon logic if needed
+          coupon: appliedCoupons.length > 0 ? appliedCoupons[0].discountCode : null, // Backend might need update for multi-coupon
+          discountAmount: discountAmount,
+          appliedCoupons: appliedCoupons, // Send all coupons
         },
       );
 
@@ -221,6 +266,19 @@ const CartPage = () => {
                           Seller:{" "}
                           <span className="text-[#47718F]">{item.shop?.name || item.sellerName || "Marketplace Seller"}</span>
                         </p>
+                        {/* Applied Coupon Badge */}
+                        {appliedCoupons.some((c: any) => 
+                          item.discount_details?.some((d: any) => d.discountCode === c.discountCode)
+                        ) && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <div className="text-[9px] font-bold bg-green-500/20 text-green-600 px-2 py-0.5 rounded border border-green-500/20 flex items-center gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                              DISCOUNT APPLIED: {appliedCoupons.find((c: any) => 
+                                item.discount_details?.some((d: any) => d.discountCode === c.discountCode)
+                              )?.discountCode}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <button
                         onClick={() =>
@@ -334,6 +392,60 @@ const CartPage = () => {
                 </h3>
 
                 <div className="space-y-4 mb-8">
+                  {/* Coupon Selection */}
+                  {availableCoupons.length > 0 && (
+                    <div className="pb-4 border-b border-slate-100">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                        Apply Coupons
+                      </label>
+                      <select 
+                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-[#365870] outline-none focus:border-[#47718F] transition-all"
+                        value=""
+                        onChange={(e) => {
+                          const code = e.target.value;
+                          const coupon = availableCoupons.find(c => c.discountCode === code);
+                          if (coupon) {
+                            applyCoupon(coupon);
+                            toast.success(`Applied ${coupon.discountCode}!`);
+                          }
+                        }}
+                      >
+                        <option value="" disabled>Select a coupon to apply</option>
+                        {availableCoupons.map((coupon: any) => (
+                          <option key={coupon.discountCode} value={coupon.discountCode}>
+                            {coupon.discountCode} - {coupon.discountValue}% OFF
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Applied Coupons List */}
+                  {appliedCoupons.length > 0 && (
+                    <div className="space-y-2 py-4 border-b border-slate-100">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">
+                        Applied Coupons
+                      </label>
+                      {appliedCoupons.map((coupon: any) => (
+                        <div key={coupon.id} className="flex items-center justify-between bg-green-50 p-2 rounded-xl border border-green-100">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-green-700">{coupon.discountCode}</span>
+                            <span className="text-[10px] font-bold text-green-600 bg-white px-1.5 py-0.5 rounded-md">-{coupon.discountValue}%</span>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              removeCoupon(coupon.discountCode);
+                              toast.success(`Removed ${coupon.discountCode}`);
+                            }}
+                            className="text-green-300 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-sm font-medium">Subtotal</span>
                     <span className="font-bold text-slate-700">
@@ -346,6 +458,14 @@ const CartPage = () => {
                       ${shipping.toFixed(2)}
                     </span>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="flex items-center justify-between text-green-500">
+                      <span className="text-sm font-medium">Total Discount</span>
+                      <span className="font-bold">
+                        -${discountAmount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-slate-500">
                     <span className="text-sm font-medium">Tax</span>
                     <span className="font-bold text-slate-700">$0.00</span>
