@@ -23,9 +23,9 @@ const ProfileHeader = ({ stats }: ProfileHeaderProps) => {
     <div className="space-y-8">
       {/* Welcome Message */}
       <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-        <div className="w-20 h-20 rounded-[24px] bg-gradient-to-tr from-[#47718F] to-[#365870] flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#47718F]/20 uppercase">
-           {user?.avatar ? (
-             <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-[24px]" />
+        <div className="w-20 h-20 rounded-[24px] bg-gradient-to-tr from-[#47718F] to-[#365870] flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#47718F]/20 uppercase overflow-hidden">
+           {user?.avatar?.url ? (
+             <img src={user.avatar.url} alt={user.name} className="w-full h-full object-cover" />
            ) : (
              user?.name?.[0] || "U"
            )}

@@ -14,6 +14,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import { Stripe } from "stripe";
+import { imagekit } from "@packages/libs/imagekit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
@@ -660,6 +661,87 @@ export const updateUserAddress = async (
       success: true,
       address: updatedAddress,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserProfile = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { name, avatar } = req.body;
+
+    if (!userId) {
+      return next(new AuthenticationError("User not found"));
+    }
+
+    const updateData: any = {};
+    if (name) updateData.name = name;
+
+    await prisma.$transaction(async (tx) => {
+      // If avatar is provided (base64 string from client)
+      if (avatar) {
+        const response = await imagekit.upload({
+          file: avatar,
+          fileName: `avatar-${userId}-${Date.now()}.jpg`,
+          folder: "/avatars",
+        });
+
+        // 1. Check if user already has an avatar record
+        const currentUser = await tx.users.findUnique({
+          where: { id: userId },
+          select: { avatarId: true }
+        });
+
+        if (currentUser?.avatarId) {
+          // Update existing image record
+          await tx.images.update({
+            where: { id: currentUser.avatarId },
+            data: {
+              url: response.url,
+              file_id: response.fileId,
+            },
+          });
+          updateData.avatarId = currentUser.avatarId;
+        } else {
+          // Create new image record and link it
+          const newImage = await tx.images.create({
+            data: {
+              url: response.url,
+              file_id: response.fileId,
+            },
+          });
+          updateData.avatarId = newImage.id;
+        }
+      }
+
+      await tx.users.update({
+        where: { id: userId },
+        data: updateData,
+      });
+    });
+
+    const updatedUser = await prisma.users.findUnique({
+      where: { id: userId },
+      include: { avatar: true },
+    });
+
+    if (updatedUser) {
+      // Security: Remove password before sending to frontend
+      const { password: _, ...userWithoutPassword } = updatedUser;
+      
+      res.status(200).json({
+        success: true,
+        message: "Profile updated successfully",
+        user: userWithoutPassword,
+      });
+    } else {
+      res.status(404).json({ success: false, message: "User not found after update" });
+    }
   } catch (error) {
     next(error);
   }

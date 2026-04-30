@@ -46,7 +46,11 @@ const Header = () => {
                   href={"/profile"}
                   className="w-[45px] h-[45px] flex items-center justify-center rounded-full border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md transition-all overflow-hidden"
                 >
-                  <ProfileIcon />
+                  {user?.avatar?.url ? (
+                    <img src={user.avatar.url} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <ProfileIcon />
+                  )}
                 </Link>
                 <Link href={"/profile"} className="hidden sm:block">
                   <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">

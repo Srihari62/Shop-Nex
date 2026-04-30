@@ -13,6 +13,7 @@ import {
   registerSeller,
   resetUserPassword,
   updateUserAddress,
+  updateUserProfile,
   userForgotPassword,
   userRegistration,
   verifySellerOtp,
@@ -46,5 +47,6 @@ router.post("/add-address", isAuthenticated, addUserAddress)
 router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress)
 router.put("/update-address", isAuthenticated, updateUserAddress)
 router.get("/shipping-addresses", isAuthenticated, getUserAddresses)
+router.put("/update-profile", isAuthenticated, updateUserProfile);
 
 export default router;
