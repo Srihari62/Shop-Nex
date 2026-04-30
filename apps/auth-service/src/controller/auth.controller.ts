@@ -746,3 +746,69 @@ export const updateUserProfile = async (
     next(error);
   }
 };
+
+// Update Password
+export const updateUserPassword = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user?.id;
+
+    if (!currentPassword || !newPassword) {
+      return next(new ValidationError("Current and new password are required"));
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return next(new AuthenticationError("User not found"));
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password!);
+    if (!isMatch) {
+      return next(new ValidationError("Incorrect current password", 400));
+    }
+
+    // Check if new password is same as old
+    const isSamePassword = await bcrypt.compare(newPassword, user.password!);
+    if (isSamePassword) {
+      return next(new ValidationError("New password cannot be same as old password", 400));
+    }
+
+    // Hash and update
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.users.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Logout
+export const logout = async (req: any, res: Response, next: NextFunction) => {
+  try {
+    res.cookie("accessToken", "", { maxAge: 1 });
+    res.cookie("refreshToken", "", { maxAge: 1 });
+    res.cookie("sellerAccessToken", "", { maxAge: 1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};

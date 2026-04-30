@@ -52,6 +52,7 @@ type Store = {
   removeCoupon: (code: string) => void;
   appliedCoupons: any[];
   clearCart: () => void;
+  resetStore: () => void;
 };
 
 export const useStore = create<Store>()(
@@ -182,6 +183,7 @@ export const useStore = create<Store>()(
         }));
       },
       clearCart: () => set({ cart: [], appliedCoupons: [] }),
+      resetStore: () => set({ cart: [], wishlist: [], appliedCoupons: [] }),
     }),
     { name: "store-storage" },
   ),

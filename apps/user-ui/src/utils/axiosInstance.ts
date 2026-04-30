@@ -11,7 +11,14 @@ let refreshSubscribers: (() => void)[] = [];
 
 //Handle logout and prevent infinite loops
 
-const handleLogout = () => {
+import { useStore } from "../store";
+
+export const handleLogout = async () => {
+  try {
+    await axiosInstance.get("/api/logout");
+  } catch (error) {
+    console.error("Logout API failed", error);
+  }
   const publicPaths = ["/login", "/signup", "/forgot-password", "/reset-password"];
   const currentPath = window.location.pathname;
 

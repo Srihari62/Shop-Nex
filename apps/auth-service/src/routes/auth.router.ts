@@ -9,10 +9,12 @@ import {
   getUserAddresses,
   loginSeller,
   loginUser,
+  logout,
   refreshToken,
   registerSeller,
   resetUserPassword,
   updateUserAddress,
+  updateUserPassword,
   updateUserProfile,
   userForgotPassword,
   userRegistration,
@@ -48,5 +50,7 @@ router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress)
 router.put("/update-address", isAuthenticated, updateUserAddress)
 router.get("/shipping-addresses", isAuthenticated, getUserAddresses)
 router.put("/update-profile", isAuthenticated, updateUserProfile);
+router.put("/update-password", isAuthenticated, updateUserPassword);
+router.get("/logout", logout);
 
 export default router;
