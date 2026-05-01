@@ -514,6 +514,22 @@ export const getSeller = async (
   }
 };
 
+export const getAdmin = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const admin = req.user;
+    res.status(200).json({
+      success: true,
+      admin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const addUserAddress = async (
   req: any,
@@ -808,6 +824,69 @@ export const logout = async (req: any, res: Response, next: NextFunction) => {
       success: true,
       message: "Logged out successfully",
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// admin login
+
+export const adminLogin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new ValidationError("Email and password are required"));
+    }
+    const user = await prisma.users.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      return next(new AuthenticationError("User not found"));
+    }
+    //verify password
+    const isMatch = await bcrypt.compare(password, user.password!);
+    if (!isMatch) {
+      return next(new AuthenticationError("Invalid credentials"));
+    }
+
+    const isAdmin = user.role === "admin";
+    if(!isAdmin){
+      // sendLog({
+      //   type: "error",
+      //   message: `Unauthorized access attempt: ${user.name}`,
+      //   source: "aut-service",
+      // })
+      return next(new ValidationError("You are not admin"));
+    }
+    
+    // sendLog({
+    //   type: "success",
+    //   message: `Admin login successful: ${email}`,
+    //   source: "auth-service",
+    // });
+
+    res.clearCookie("seller-access-token");
+    res.clearCookie("seller-refresh-token");
+
+    const accessToken = jwt.sign({id: user.id, role:  "admin"}, process.env.JWT_ACCESS_SECRET as string, { expiresIn: "15m" });
+    const refreshToken = jwt.sign({id: user.id, role: "admin"}, process.env.JWT_REFRESH_SECRET as string, { expiresIn: "7d" });
+    setCookie(res,"accessToken",accessToken)
+    setCookie(res,"refreshToken",refreshToken)
+    
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user:{
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      }
+    })
+    
   } catch (error) {
     next(error);
   }

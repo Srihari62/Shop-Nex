@@ -1,6 +1,8 @@
 import express, { Router } from "express";
 import {
   addUserAddress,
+  adminLogin,
+  getAdmin,
   createShop,
   createStripeConnectLink,
   deleteUserAddress,
@@ -30,6 +32,7 @@ const router: Router = express.Router();
 router.post("/user-registration", userRegistration);
 router.post("/verify-user", verifyUserOtp);
 router.post("/login-user", loginUser);
+router.post("/admin-login", adminLogin);
 router.post("/refresh-token", refreshToken);
 router.get("/logged-in-user", isAuthenticated, getUser);
 router.post("/forgot-password-user", userForgotPassword);
@@ -43,6 +46,7 @@ router.post("/create-shop", createShop);
 router.post("/create-stripe-link", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
 router.get("/logged-in-seller", isAuthenticated, getSeller);
+router.get("/logged-in-admin", isAuthenticated, getAdmin);
 
 //address
 router.post("/add-address", isAuthenticated, addUserAddress)

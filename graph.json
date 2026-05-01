@@ -1,0 +1,2188 @@
+{
+  "graph": {
+    "nodes": {
+      "@eshop/auth-service-e2e": {
+        "name": "@eshop/auth-service-e2e",
+        "type": "app",
+        "data": {
+          "root": "apps/auth-service-e2e",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/auth-service-e2e",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/out-tsc/@eshop/auth-service-e2e/**/*.d.ts",
+                "{projectRoot}/out-tsc/@eshop/auth-service-e2e/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{projectRoot}/test-output/jest/coverage"
+              ],
+              "options": {
+                "jestConfig": "apps/auth-service-e2e/jest.config.ts",
+                "passWithNoTests": true
+              },
+              "dependsOn": [
+                "@eshop/auth-service:build",
+                "@eshop/auth-service:serve"
+              ],
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@eshop/auth-service-e2e",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": [
+            "@eshop/auth-service"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/auth-service-e2e",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          }
+        }
+      },
+      "@eshop/api-gateway-e2e": {
+        "name": "@eshop/api-gateway-e2e",
+        "type": "app",
+        "data": {
+          "root": "apps/api-gateway-e2e",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/api-gateway-e2e",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/out-tsc/@eshop/api-gateway-e2e/**/*.d.ts",
+                "{projectRoot}/out-tsc/@eshop/api-gateway-e2e/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "e2e": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{projectRoot}/test-output/jest/coverage"
+              ],
+              "options": {
+                "jestConfig": "apps/api-gateway-e2e/jest.config.ts",
+                "passWithNoTests": true
+              },
+              "dependsOn": [
+                "@eshop/api-gateway:build",
+                "@eshop/api-gateway:serve"
+              ],
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@eshop/api-gateway-e2e",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": [
+            "@eshop/api-gateway"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/api-gateway-e2e",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          }
+        }
+      },
+      "@eshop/product-service": {
+        "name": "@eshop/product-service",
+        "type": "app",
+        "data": {
+          "root": "apps/product-service",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/product-service",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/tsconfig.app.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/product-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/product-service/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/product-service:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/product-service:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/product-service:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/product-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/product-service --includeDependentProjects -- npx nx build-deps @eshop/product-service"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/product-service/dist/package.json",
+                "{workspaceRoot}/apps/product-service/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/product-service/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/product-service",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@eshop/product-service",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/admin-service": {
+        "name": "@eshop/admin-service",
+        "type": "app",
+        "data": {
+          "root": "apps/admin-service",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/admin-service",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/tsconfig.app.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/admin-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/admin-service/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/admin-service:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/admin-service:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/admin-service:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/admin-service --includeDependentProjects -- npx nx build-deps @eshop/admin-service"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/admin-service/dist/package.json",
+                "{workspaceRoot}/apps/admin-service/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/admin-service/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/admin-service",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@eshop/admin-service",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/order-service": {
+        "name": "@eshop/order-service",
+        "type": "app",
+        "data": {
+          "root": "apps/order-service",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/order-service",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/tsconfig.app.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/order-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/order-service/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/order-service:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/order-service:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/order-service:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/order-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/order-service --includeDependentProjects -- npx nx build-deps @eshop/order-service"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/order-service/dist/package.json",
+                "{workspaceRoot}/apps/order-service/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/order-service/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/order-service",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@eshop/order-service",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/auth-service": {
+        "name": "@eshop/auth-service",
+        "type": "app",
+        "data": {
+          "root": "apps/auth-service",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/auth-service",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/out-tsc/auth-service/**/*.d.ts",
+                "{projectRoot}/out-tsc/auth-service/tsconfig.app.tsbuildinfo",
+                "{projectRoot}/out-tsc/jest/**/*.d.ts",
+                "{projectRoot}/out-tsc/jest/tsconfig.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "metadata": {
+                "technologies": [
+                  "jest"
+                ],
+                "description": "Run Jest Tests",
+                "help": {
+                  "command": "npx jest --help",
+                  "example": {
+                    "options": {
+                      "coverage": true
+                    }
+                  }
+                }
+              },
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                "{workspaceRoot}/jest.preset.js",
+                {
+                  "externalDependencies": [
+                    "jest"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{projectRoot}/test-output/jest/coverage"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/auth-service",
+                "env": {
+                  "TS_NODE_COMPILER_OPTIONS": "{\"moduleResolution\":\"node10\",\"module\":\"commonjs\",\"customConditions\":null}"
+                },
+                "command": "jest",
+                "passWithNoTests": true
+              },
+              "configurations": {},
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ]
+            },
+            "docker:build": {
+              "dependsOn": [
+                "build",
+                "prune"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "metadata": {
+                "technologies": [
+                  "docker"
+                ],
+                "description": "Run Docker build",
+                "help": {
+                  "command": "docker build --help",
+                  "example": {
+                    "options": {
+                      "cache-from": "type=s3,region=eu-west-1,bucket=mybucket .",
+                      "cache-to": "type=s3,region=eu-west-1,bucket=mybucket ."
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "options": {
+                "cwd": "apps/auth-service",
+                "args": [
+                  "--tag apps-auth-service"
+                ],
+                "command": "docker build ."
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker:run": {
+              "dependsOn": [
+                "docker:build"
+              ],
+              "options": {
+                "cwd": "apps/auth-service",
+                "command": "docker run {args} apps-auth-service"
+              },
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "metadata": {
+                "technologies": [
+                  "docker"
+                ],
+                "description": "Run Docker run",
+                "help": {
+                  "command": "docker run --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "-p",
+                        "3000:3000"
+                      ]
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "nx-release-publish": {
+              "executor": "@nx/docker:release-publish",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/auth-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/auth-service/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/auth-service:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/auth-service:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/auth-service:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/auth-service",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/auth-service --includeDependentProjects -- npx nx build-deps @eshop/auth-service"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev"
+              },
+              "metadata": {
+                "scriptContent": "node src/main.ts",
+                "runCommand": "npm run dev"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/auth-service/dist/package.json",
+                "{workspaceRoot}/apps/auth-service/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/auth-service/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "metadata": {
+            "targetGroups": {
+              "Docker": [
+                "docker:build",
+                "docker:run",
+                "nx-release-publish"
+              ],
+              "NPM Scripts": [
+                "dev"
+              ]
+            },
+            "js": {
+              "packageName": "@eshop/auth-service",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "projectType": "application",
+          "name": "@eshop/auth-service",
+          "sourceRoot": "apps/auth-service/src",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/api-gateway": {
+        "name": "@eshop/api-gateway",
+        "type": "app",
+        "data": {
+          "root": "apps/api-gateway",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/api-gateway",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/tsconfig.app.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/api-gateway",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/api-gateway/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/api-gateway:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/api-gateway:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/api-gateway:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/api-gateway",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/api-gateway --includeDependentProjects -- npx nx build-deps @eshop/api-gateway"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/api-gateway/dist/package.json",
+                "{workspaceRoot}/apps/api-gateway/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/api-gateway/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/api-gateway",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@eshop/api-gateway",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/seller-ui": {
+        "name": "@eshop/seller-ui",
+        "type": "app",
+        "data": {
+          "root": "apps/seller-ui",
+          "targets": {
+            "build": {
+              "options": {
+                "cwd": "apps/seller-ui",
+                "tty": false,
+                "command": "next build"
+              },
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "next"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/seller-ui/.next/!(cache)/**/*",
+                "{workspaceRoot}/apps/seller-ui/.next/!(cache)"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/seller-ui",
+                "command": "next dev"
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/seller-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/seller-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/seller-ui --includeDependentProjects -- npx nx build-deps @eshop/seller-ui"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@eshop/seller-ui",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/seller-ui",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/admin-ui": {
+        "name": "@eshop/admin-ui",
+        "type": "app",
+        "data": {
+          "root": "apps/admin-ui",
+          "targets": {
+            "build": {
+              "options": {
+                "cwd": "apps/admin-ui",
+                "tty": false,
+                "command": "next build"
+              },
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "next"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/admin-ui/.next/!(cache)/**/*",
+                "{workspaceRoot}/apps/admin-ui/.next/!(cache)"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin-ui",
+                "command": "next dev"
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/admin-ui --includeDependentProjects -- npx nx build-deps @eshop/admin-ui"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@eshop/admin-ui",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/admin-ui",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/user-ui": {
+        "name": "@eshop/user-ui",
+        "type": "app",
+        "data": {
+          "root": "apps/user-ui",
+          "targets": {
+            "build": {
+              "options": {
+                "cwd": "apps/user-ui",
+                "tty": false,
+                "command": "next build"
+              },
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "next"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/user-ui/.next/!(cache)/**/*",
+                "{workspaceRoot}/apps/user-ui/.next/!(cache)"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/user-ui",
+                "command": "next dev"
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/user-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/user-ui",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/user-ui --includeDependentProjects -- npx nx build-deps @eshop/user-ui"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "@eshop/user-ui",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/user-ui",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "@eshop/kafka": {
+        "name": "@eshop/kafka",
+        "type": "app",
+        "data": {
+          "root": "apps/kafka",
+          "targets": {
+            "typecheck": {
+              "dependsOn": [
+                "^typecheck"
+              ],
+              "options": {
+                "cwd": "apps/kafka",
+                "command": "tsc --build --emitDeclarationOnly"
+              },
+              "cache": true,
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "outputs": [
+                "{projectRoot}/**/*.js",
+                "{projectRoot}/**/*.cjs",
+                "{projectRoot}/**/*.mjs",
+                "{projectRoot}/**/*.jsx",
+                "{projectRoot}/**/*.js.map",
+                "{projectRoot}/**/*.jsx.map",
+                "{projectRoot}/**/*.d.ts",
+                "{projectRoot}/**/*.d.cts",
+                "{projectRoot}/**/*.d.mts",
+                "{projectRoot}/**/*.d.ts.map",
+                "{projectRoot}/**/*.d.cts.map",
+                "{projectRoot}/**/*.d.mts.map",
+                "{projectRoot}/tsconfig.tsbuildinfo",
+                "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/tsconfig.app.tsbuildinfo"
+              ],
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "metadata": {
+                "technologies": [
+                  "typescript"
+                ],
+                "description": "Runs type-checking for the project.",
+                "help": {
+                  "command": "npx tsc --build --help",
+                  "example": {
+                    "args": [
+                      "--force"
+                    ]
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "options": {
+                "cwd": "apps/kafka",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli build"
+              },
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "webpack-cli"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/kafka/dist"
+              ],
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Runs Webpack build",
+                "help": {
+                  "command": "npx webpack-cli build --help",
+                  "example": {
+                    "options": {
+                      "json": "stats.json"
+                    },
+                    "args": [
+                      "--profile"
+                    ]
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "continuous": true,
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "@eshop/kafka:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "@eshop/kafka:build:development"
+                },
+                "production": {
+                  "buildTarget": "@eshop/kafka:build:production"
+                }
+              },
+              "parallelism": true
+            },
+            "preview": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/kafka",
+                "args": [
+                  "--node-env=production"
+                ],
+                "command": "webpack-cli serve"
+              },
+              "metadata": {
+                "technologies": [
+                  "webpack"
+                ],
+                "description": "Starts Webpack dev server in production mode",
+                "help": {
+                  "command": "npx webpack-cli serve --help",
+                  "example": {
+                    "options": {
+                      "args": [
+                        "--client-progress",
+                        "--history-api-fallback "
+                      ]
+                    }
+                  }
+                }
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "dependsOn": [
+                "build"
+              ],
+              "executor": "@nx/web:file-server",
+              "options": {
+                "buildTarget": "build",
+                "spa": true
+              },
+              "syncGenerators": [
+                "@nx/js:typescript-sync"
+              ],
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "npx nx watch --projects @eshop/kafka --includeDependentProjects -- npx nx build-deps @eshop/kafka"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune-lockfile": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "executor": "@nx/js:prune-lockfile",
+              "outputs": [
+                "{workspaceRoot}/apps/kafka/dist/package.json",
+                "{workspaceRoot}/apps/kafka/dist/package-lock.json"
+              ],
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "copy-workspace-modules": {
+              "dependsOn": [
+                "build"
+              ],
+              "cache": true,
+              "outputs": [
+                "{workspaceRoot}/apps/kafka/dist/workspace_modules"
+              ],
+              "executor": "@nx/js:copy-workspace-modules",
+              "options": {
+                "buildTarget": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "prune": {
+              "dependsOn": [
+                "prune-lockfile",
+                "copy-workspace-modules"
+              ],
+              "executor": "nx:noop",
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            }
+          },
+          "projectType": "application",
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@eshop/kafka",
+              "packageVersion": "0.0.1",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "name": "@eshop/kafka",
+          "tags": [
+            "npm:private"
+          ],
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "@eshop/auth-service-e2e": [
+        {
+          "source": "@eshop/auth-service-e2e",
+          "target": "@eshop/auth-service",
+          "type": "implicit"
+        }
+      ],
+      "@eshop/api-gateway-e2e": [
+        {
+          "source": "@eshop/api-gateway-e2e",
+          "target": "@eshop/api-gateway",
+          "type": "implicit"
+        }
+      ],
+      "@eshop/product-service": [],
+      "@eshop/admin-service": [],
+      "@eshop/order-service": [],
+      "@eshop/auth-service": [],
+      "@eshop/api-gateway": [],
+      "@eshop/seller-ui": [],
+      "@eshop/admin-ui": [],
+      "@eshop/user-ui": [],
+      "@eshop/kafka": []
+    }
+  }
+}

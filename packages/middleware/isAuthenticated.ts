@@ -16,7 +16,7 @@ const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(
       token,
       process.env.JWT_ACCESS_SECRET! as string
-    ) as { id: string; role: "user" | "seller" };
+    ) as { id: string; role: "user" | "seller" | "admin" };
 
     if (!decoded) {
       return res.status(401).json({ message: "Unauthorized! Invalid Token.." });
@@ -25,7 +25,7 @@ const isAuthenticated = async (req: any, res: Response, next: NextFunction) => {
     req.role = decoded.role;
     let account;
 
-    if (decoded.role === "user") {
+    if (decoded.role === "user" || decoded.role === "admin") {
       account = await prisma.users.findUnique({
         where: { id: decoded.id },
         include: { avatar: true },
