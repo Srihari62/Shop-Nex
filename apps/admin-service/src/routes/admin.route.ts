@@ -4,7 +4,8 @@ import { getAllPayments, getPaymentById } from "../controllers/payment.controlle
 import { 
   getAllUsers, getUserById, 
   getAllProducts, getProductById, 
-  getAllSellers, getSellerById 
+  getAllSellers, getSellerById,
+  updateUserRole, getAllAdmins
 } from "../controllers/admin.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 
@@ -29,5 +30,9 @@ router.get("/products/:id", isAuthenticated, getProductById);
 // Seller routes
 router.get("/sellers", isAuthenticated, getAllSellers);
 router.get("/sellers/:id", isAuthenticated, getSellerById);
+
+// Management routes
+router.get("/team", isAuthenticated, getAllAdmins);
+router.put("/update-role", isAuthenticated, updateUserRole);
 
 export default router;

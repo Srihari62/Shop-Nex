@@ -122,3 +122,60 @@ export const getSellerById = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// --- MANAGEMENT CONTROLLERS ---
+export const getAllAdmins = async (req: Request, res: Response) => {
+  try {
+    const admins = await prisma.users.findMany({
+      where: {
+        role: "admin"
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        avatar: true
+      }
+    });
+    res.status(200).json({ success: true, admins });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateUserRole = async (req: Request, res: Response) => {
+  try {
+    const { email, role } = req.body;
+
+    if (!email || !role) {
+      return res.status(400).json({ success: false, message: "Email and Role are required" });
+    }
+
+    if (role !== "admin" && role !== "user") {
+      return res.status(400).json({ success: false, message: "Invalid role. Only 'admin' or 'user' are allowed." });
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found with this email" });
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { email },
+      data: { role },
+      include: {
+        avatar: true
+      }
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: `User role updated to ${role} successfully`,
+      user: updatedUser 
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
