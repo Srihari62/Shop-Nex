@@ -12,10 +12,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://localhost:3002",
+    ],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 app.use(morgan("dev"));
@@ -40,7 +44,7 @@ app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 5000,
   message: { error: "Too many requests from this IP, please try again later" },
   standardHeaders: true,
   legacyHeaders: false,
@@ -52,6 +56,7 @@ app.get("/gateway-health", (req, res) => {
   res.send({ message: "Welcome to api-gateway-health!" });
 });
 
+app.use("/chatting", proxy("http://localhost:6006"));
 app.use("/admin", proxy("http://localhost:6005"));
 app.use("/order", proxy("http://localhost:6004"));
 // app.use("/seller", proxy("http://localhost:6003"));

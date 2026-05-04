@@ -8,6 +8,8 @@ import { useStore } from "apps/user-ui/src/store";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
 import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import { useRouter } from "next/navigation";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import toast from "react-hot-toast";
 
 interface ProductDetailsCardProps {
@@ -19,6 +21,8 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
   const [mounted, setMounted] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
+  const router = useRouter();
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const masterSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
   useEffect(() => {
@@ -67,6 +71,41 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
     originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0;
+
+  const handleChatWithSeller = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please login to chat with seller");
+      router.push("/login");
+      return;
+    }
+
+    const sellerId =
+      product?.sellerId || product?.shop?.sellerId || product?.seller?.id;
+    if (!sellerId) {
+      toast.error("Seller information not available");
+      return;
+    }
+
+    try {
+      setIsChatLoading(true);
+      const res = await axiosInstance.post(
+        "/chatting/api/create-user-conversationGroup",
+        {
+          sellerId,
+        },
+      );
+
+      const conversationId = res.data.conversation.id;
+      router.push(`/inbox?conversationId=${conversationId}`);
+      onClose();
+    } catch (error) {
+      console.error("Failed to initiate chat:", error);
+      toast.error("Failed to start conversation. Please try again.");
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   const modalContent = (
     <div
@@ -154,9 +193,17 @@ const ProductDetailsCard = ({ product, onClose }: ProductDetailsCardProps) => {
                 </p>
               </div>
             </div>
-            <button className="bg-[#6366f1] hover:bg-[#4f46e5] text-white text-[10px] font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg active:scale-95 uppercase tracking-widest">
-              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              Chat with Seller
+            <button
+              onClick={handleChatWithSeller}
+              disabled={isChatLoading}
+              className="bg-[#6366f1] hover:bg-[#4f46e5] disabled:opacity-50 text-white text-[10px] font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-lg active:scale-95 uppercase tracking-widest"
+            >
+              {isChatLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              )}
+              {isChatLoading ? "Starting Chat..." : "Chat with Seller"}
             </button>
           </div>
 
