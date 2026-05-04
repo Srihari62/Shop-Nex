@@ -2,10 +2,12 @@ import { kafka } from "@packages/utils/kafka";
 import { WebSocket, WebSocketServer } from "ws";
 import { Server as HttpServer } from "http";
 import redis from "@packages/libs/redis";
+import prisma from "@packages/libs/prisma";
 
 const producer = kafka.producer();
 const connectedUsers: Map<string, WebSocket> = new Map();
-const unseenCounts: Map<String, number> = new Map();
+const activeChats: Map<string, string> = new Map(); // userId -> conversationId
+const unseenCounts: Map<string, number> = new Map();
 
 type IncomingMessage = {
   type?: string;
@@ -14,6 +16,7 @@ type IncomingMessage = {
   messageBody: string;
   conversationId: string;
   senderType: string;
+  userType?: string;
 };
 export async function createWebSocketServer(server: HttpServer) {
   const wss = new WebSocketServer({ server });
@@ -33,7 +36,8 @@ export async function createWebSocketServer(server: HttpServer) {
         if (!registeredUserId && !messageStr.startsWith("{")) {
           registeredUserId = messageStr;
           connectedUsers.set(registeredUserId, ws);
-          console.log(`Registered Websocket for userId ${registeredUserId}`);
+          (ws as any).registeredId = registeredUserId; // Store for easy access
+          console.log(`User registered: ${registeredUserId}`);
 
           const isSeller = registeredUserId.startsWith("seller_");
           const redisKey = isSeller
@@ -46,10 +50,88 @@ export async function createWebSocketServer(server: HttpServer) {
         //process the JSON message
         const data: IncomingMessage = JSON.parse(messageStr);
 
-        if (data.type === "MARK_AS_SEEN" && registeredUserId) {
-          const seenKey = `${registeredUserId}_${data.conversationId}`;
-          unseenCounts.set(seenKey, 0);
-          return;
+        switch (data.type) {
+          case "ACTIVE_CHAT": {
+            const { conversationId, fromUserId, userType } = data;
+            const regId = userType === "seller" ? `seller_${fromUserId}` : `user_${fromUserId}`;
+            
+            if (!conversationId) {
+              activeChats.delete(regId);
+              return;
+            }
+            
+            activeChats.set(regId, conversationId);
+
+            try {
+              await prisma.message.updateMany({
+                where: {
+                  conversationId,
+                  senderId: { not: fromUserId },
+                  status: { not: "seen" },
+                },
+                data: { status: "seen" },
+              });
+
+              // Notify other participants
+              const conversation = await prisma.conversationGroup.findUnique({
+                where: { id: conversationId },
+              });
+              if (conversation) {
+                conversation.participantsIds.forEach((pId) => {
+                  const pKeyUser = `user_${pId}`;
+                  const pKeySeller = `seller_${pId}`;
+                  [pKeyUser, pKeySeller].forEach((k) => {
+                    if (k !== regId && connectedUsers.has(k)) {
+                      connectedUsers.get(k)?.send(
+                        JSON.stringify({
+                          type: "MESSAGES_SEEN",
+                          payload: { conversationId, seenBy: regId },
+                        }),
+                      );
+                    }
+                  });
+                });
+              }
+            } catch (error) {
+              console.error("Error in ACTIVE_CHAT:", error);
+            }
+            break;
+          }
+
+          case "MARK_AS_SEEN": {
+            const { conversationId, fromUserId, userType } = data;
+            const regId = userType === "seller" ? `seller_${fromUserId}` : `user_${fromUserId}`;
+            
+            await prisma.message.updateMany({
+              where: {
+                conversationId,
+                senderId: { not: fromUserId },
+                status: { not: "seen" },
+              },
+              data: { status: "seen" },
+            });
+
+            const conversation = await prisma.conversationGroup.findUnique({
+              where: { id: conversationId },
+            });
+            if (conversation) {
+              conversation.participantsIds.forEach((pId) => {
+                const pKeyUser = `user_${pId}`;
+                const pKeySeller = `seller_${pId}`;
+                [pKeyUser, pKeySeller].forEach((k) => {
+                  if (k !== regId && connectedUsers.has(k)) {
+                    connectedUsers.get(k)?.send(
+                      JSON.stringify({
+                        type: "MESSAGES_SEEN",
+                        payload: { conversationId, seenBy: regId },
+                      }),
+                    );
+                  }
+                });
+              });
+            }
+            break;
+          }
         }
 
         //regular message
@@ -66,12 +148,19 @@ export async function createWebSocketServer(server: HttpServer) {
           return;
         }
 
+        const recieverKey = senderType === "seller" ? `user_${toUserId}` : `seller_${toUserId}`;
+        const myKey = (ws as any).registeredId;
+
+        const isReceiverActive = activeChats.get(recieverKey) === conversationId;
+        const initialStatus = isReceiverActive ? "seen" : (connectedUsers.has(recieverKey) ? "delivered" : "sent");
+
         const now = new Date().toISOString();
         const messagePayload = {
           conversationId,
           senderId: fromUserId,
           senderType,
           content: messageBody,
+          status: initialStatus,
           createdAt: now,
         };
 
@@ -80,43 +169,46 @@ export async function createWebSocketServer(server: HttpServer) {
           payload: messagePayload,
         });
 
-        const recieverKey =
-          senderType === "user" ? `seller_${toUserId}` : `user_${toUserId}`;
-        const senderKey =
-          senderType === "user" ? `user_${fromUserId}` : `seller_${fromUserId}`;
-
         //update unseen count dynaically
 
         const unseenKey = `${recieverKey}_${conversationId}`;
-        const prevCount = unseenCounts.get(unseenKey) || 0;
-        unseenCounts.set(unseenKey, prevCount + 1);
+        if (!isReceiverActive) {
+          const prevCount = unseenCounts.get(unseenKey) || 0;
+          unseenCounts.set(unseenKey, prevCount + 1);
 
-        //send new messgae to receiver
-        const receiverSocket = connectedUsers.get(recieverKey);
-        if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
-          receiverSocket.send(messageEvent);
+          //send new messgae to receiver
+          const receiverSocket = connectedUsers.get(recieverKey);
+          if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
+            receiverSocket.send(messageEvent);
 
-          //also notify unseen count
-          receiverSocket.send(
-            JSON.stringify({
-              type: "UNSEEN_COUNT_UPDATE",
-              payload: {
-                conversationId,
-                count: prevCount + 1,
-              },
-            }),
-          );
+            //also notify unseen count
+            receiverSocket.send(
+              JSON.stringify({
+                type: "UNSEEN_COUNT_UPDATE",
+                payload: {
+                  conversationId,
+                  count: prevCount + 1,
+                },
+              }),
+            );
 
-          console.log(`Sent new message and unseen count to ${recieverKey}`);
+            console.log(`Sent new message and unseen count to ${recieverKey}`);
+          } else {
+            console.log(`User ${recieverKey} is offline.message is queued `);
+          }
         } else {
-          console.log(`User ${recieverKey} is offline.message is queued `);
+          // If receiver is active, just send the message
+          const receiverSocket = connectedUsers.get(recieverKey);
+          if (receiverSocket && receiverSocket.readyState === WebSocket.OPEN) {
+            receiverSocket.send(messageEvent);
+          }
         }
 
         //echo to sender
-        const senderSocket = connectedUsers.get(senderKey);
+        const senderSocket = connectedUsers.get(myKey);
         if (senderSocket && senderSocket.readyState === WebSocket.OPEN) {
           senderSocket.send(messageEvent);
-          console.log(`Echoed message to sender  ${senderKey}`);
+          console.log(`Echoed message to sender ${myKey}`);
         }
 
         //push to kafka consumer

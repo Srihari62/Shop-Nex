@@ -176,6 +176,7 @@ export const getSellerConversations = async (
         if (userParticipant?.userId) {
           user = await prisma.users.findUnique({
             where: { id: userParticipant.userId },
+            include: { avatar: true },
           });
         }
         //GEt last essage in the conversation
@@ -191,7 +192,7 @@ export const getSellerConversations = async (
         //check online status from redis
         let isOnline = false;
         if (userParticipant?.userId) {
-          const redisKey = `online:user:user${userParticipant.userId}`;
+          const redisKey = `online:user:user_${userParticipant.userId}`;
           const redisResult = await redis.get(redisKey);
           isOnline = !!redisResult;
         }
@@ -203,7 +204,7 @@ export const getSellerConversations = async (
             id: user?.id || null,
             name: user?.name || "Unknown User",
             isOnline,
-            avatar: user?.avatarId || null,
+            avatar: user?.avatar?.url || null,
           },
           lastMessage:
             lastMessage?.content || "Say something to start a conversation",
@@ -277,14 +278,14 @@ export const fetchUserMessages = async (
         conversationId,
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
     });
 
     return res.status(200).json({
-      messages,
+      messages: messages.reverse(),
       seller: {
         id: seller?.id || null,
         name: seller?.shop?.name || "Unknown Seller",
@@ -343,6 +344,7 @@ export const fetchSellerMessages = async (
     if (userParticipant?.userId) {
       user = await prisma.users.findUnique({
         where: { id: userParticipant.userId },
+        include: { avatar: true },
       });
     }
 
@@ -355,19 +357,19 @@ export const fetchSellerMessages = async (
         conversationId,
       },
       orderBy: {
-        createdAt: "asc",
+        createdAt: "desc",
       },
       take: pageSize,
       skip: (page - 1) * pageSize,
     });
 
     return res.status(200).json({
-      messages,
+      messages: messages.reverse(),
       user: {
         id: user?.id || null,
         name: user?.name || "Unknown User",
         isOnline,
-        avatar: user?.avatarId,
+        avatar: user?.avatar?.url || null,
       },
       currentPage: page,
       hasMore: messages.length === pageSize,

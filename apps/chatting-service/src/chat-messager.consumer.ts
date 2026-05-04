@@ -8,6 +8,7 @@ interface BufferedMessage {
   senderId: string;
   senderType: string;
   content: string;
+  status: string;
   createdAt: string;
 }
 
@@ -60,6 +61,7 @@ async function flushBufferToDb() {
       senderId: msg.senderId,
       senderType: msg.senderType,
       content: msg.content,
+      status: (msg as any).status || "sent",
       createdAt: new Date(msg.createdAt),
     }));
     await prisma.message.createMany({

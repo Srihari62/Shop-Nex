@@ -305,6 +305,7 @@ model message {
   senderType     String
   content        String?
   attachments    String[]
+  status         String   @default("sent") // sent, delivered, seen
   createdAt      DateTime @default(now())
 
   @@unique([conversationId, senderId, content, createdAt])

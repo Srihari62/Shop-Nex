@@ -15,11 +15,10 @@ const Page = () => {
   const { user, isLoading: userLoading } = useRequireAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { ws, unReadCounts } = useWebSocket();
+  const { ws, unReadCounts, setUnreadCounts } = useWebSocket();
 
   const [chats, setChats] = useState<any[]>([]);
   const [selectedChat, setSelectedChat] = useState<any | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,6 +36,7 @@ const Page = () => {
         return res.data.conversations;
       },
       enabled: !!user,
+      refetchOnMount: "always",
     },
   );
 
@@ -101,54 +101,35 @@ const Page = () => {
       return res.data;
     },
     enabled: !!selectedChat?.conversationId,
+    refetchOnMount: "always",
+    staleTime: 10 * 1000,
   });
 
+  // Automatically mark as seen when chat is active
   useEffect(() => {
-    if (messagesData) {
-      setMessages((prev) => {
-        // Merge server messages with local state to ensure no losses during Kafka delay
-        const serverMessages = messagesData.messages || [];
-        const merged = [...serverMessages];
+    if (ws && ws.readyState === WebSocket.OPEN && selectedChat && messagesData) {
+      ws.send(
+        JSON.stringify({
+          type: "ACTIVE_CHAT",
+          fromUserId: user.id,
+          conversationId: selectedChat.conversationId,
+        }),
+      );
+    }
 
-        prev.forEach((localMsg) => {
-          const exists = serverMessages.some(
-            (sm: {
-              id: any;
-              content: any;
-              senderId: any;
-              createdAt: string | number | Date;
-            }) =>
-              sm.id === localMsg.id ||
-              (sm.content === localMsg.content &&
-                sm.senderId === localMsg.senderId &&
-                Math.abs(
-                  new Date(sm.createdAt).getTime() -
-                    new Date(localMsg.createdAt).getTime(),
-                ) < 5000),
-          );
-          if (!exists) {
-            merged.push(localMsg);
-          }
-        });
-
-        return merged.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-      });
-
-      // Mark as seen when messages are fetched
-      if (ws && ws.readyState === WebSocket.OPEN && selectedChat) {
+    // Cleanup: clear active chat on unmount
+    return () => {
+      if (ws && ws.readyState === WebSocket.OPEN && user?.id) {
         ws.send(
           JSON.stringify({
-            type: "MARK_AS_SEEN",
+            type: "ACTIVE_CHAT",
             fromUserId: user.id,
-            conversationId: selectedChat.conversationId,
+            conversationId: null,
           }),
         );
       }
-    }
-  }, [messagesData, selectedChat, ws, user?.id]);
+    };
+  }, [selectedChat, ws, messagesData, user?.id]);
 
   // Handle WebSocket messages
   useEffect(() => {
@@ -157,6 +138,29 @@ const Page = () => {
     const handleMessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data.type === "MESSAGES_SEEN") {
+          const { conversationId } = data.payload;
+          
+          // Update query cache
+          queryClient.setQueryData(["messages", conversationId], (old: any) => {
+            if (!old) return old;
+            return {
+              ...old,
+              messages: old.messages.map((m: any) => 
+                m.senderId === user.id ? { ...m, status: "seen" } : m
+              )
+            };
+          });
+
+          if (selectedChat && conversationId === selectedChat.conversationId) {
+            // Also reset unread count locally
+            setUnreadCounts((prev: Record<string, number>) => ({
+              ...prev,
+              [conversationId]: 0,
+            }));
+          }
+        }
 
         if (data.type === "NEW_MESSAGE") {
           const newMessage = data.payload;
@@ -187,31 +191,9 @@ const Page = () => {
             };
           });
 
-          // If message is for currently selected chat, also update local state to trigger UI immediately
-          if (
-            selectedChat &&
-            newMessage.conversationId === selectedChat.conversationId
-          ) {
-            setMessages((prev) => {
-              const isDuplicate = prev.some((m) => {
-                if (newMessage.id && m.id === newMessage.id) return true;
-                return (
-                  m.content === newMessage.content &&
-                  m.senderId === newMessage.senderId &&
-                  m.createdAt === newMessage.createdAt
-                );
-              });
-
-              if (isDuplicate) return prev;
-              return [...prev, newMessage].sort(
-                (a, b) =>
-                  new Date(a.createdAt).getTime() -
-                  new Date(b.createdAt).getTime(),
-              );
-            });
-
-            // Send mark as seen
-            if (ws.readyState === WebSocket.OPEN) {
+          // Mark as seen if we are in this chat
+          if (selectedChat && newMessage.conversationId === selectedChat.conversationId) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
               ws.send(
                 JSON.stringify({
                   type: "MARK_AS_SEEN",
@@ -222,7 +204,27 @@ const Page = () => {
             }
           }
 
-          // Update sidebar
+          // Update conversations cache
+          queryClient.setQueryData(["conversations"], (old: any) => {
+            if (!old) return old;
+            return old.map((chat: any) => {
+              if (chat.conversationId === newMessage.conversationId) {
+                return {
+                  ...chat,
+                  lastMessage: newMessage.content,
+                  lastMessageAt: newMessage.createdAt,
+                  updatedAt: newMessage.createdAt,
+                };
+              }
+              return chat;
+            }).sort((a: any, b: any) => {
+              const timeA = new Date(a.lastMessageAt || a.updatedAt).getTime();
+              const timeB = new Date(b.lastMessageAt || b.updatedAt).getTime();
+              return timeB - timeA;
+            });
+          });
+
+          // Update local sidebar state
           setChats((prevChats) => {
             const chatExists = prevChats.some(
               (c) => c.conversationId === newMessage.conversationId,
@@ -246,12 +248,8 @@ const Page = () => {
                 return chat;
               })
               .sort((a, b) => {
-                const timeA = new Date(
-                  a.lastMessageAt || a.updatedAt,
-                ).getTime();
-                const timeB = new Date(
-                  b.lastMessageAt || b.updatedAt,
-                ).getTime();
+                const timeA = new Date(a.lastMessageAt || a.updatedAt).getTime();
+                const timeB = new Date(b.lastMessageAt || b.updatedAt).getTime();
                 return timeB - timeA;
               });
           });
@@ -270,6 +268,23 @@ const Page = () => {
     // Don't clear messages state here to allow cache to load or keep local state
     router.push(`/inbox?conversationId=${chat.conversationId}`);
     setIsSidebarOpen(false);
+
+    // Notify server about active chat
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(
+        JSON.stringify({
+          type: "ACTIVE_CHAT",
+          conversationId: chat.conversationId,
+          fromUserId: user.id,
+        }),
+      );
+    }
+
+    // Reset unread count locally
+    setUnreadCounts((prev: Record<string, number>) => ({
+      ...prev,
+      [chat.conversationId]: 0,
+    }));
   };
 
   const handleSendMessage = (content: string) => {
@@ -319,7 +334,7 @@ const Page = () => {
         >
           <ChatWindow
             selectedChat={selectedChat}
-            messages={messages}
+            messages={messagesData?.messages || []}
             onSendMessage={handleSendMessage}
             onBack={() => setIsSidebarOpen(true)}
             userId={user?.id}
