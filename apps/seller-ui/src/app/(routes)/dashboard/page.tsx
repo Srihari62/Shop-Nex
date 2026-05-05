@@ -1,7 +1,8 @@
 import React from "react";
+import SellerHome from "../../shared/modules/dashboard/seller-home";
 
 const Dashboard = () => {
-  return <div className="text-red">Dashbaord</div>;
+  return <SellerHome />;
 };
 
 export default Dashboard;

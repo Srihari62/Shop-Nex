@@ -1,7 +1,8 @@
 import React from "react";
+import SellerHome from "./shared/modules/dashboard/seller-home";
 
 const Page = () => {
-  return <div className="text-red-400">Page</div>;
+  return <SellerHome />;
 };
 
 export default Page;

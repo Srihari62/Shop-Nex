@@ -1,7 +1,13 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, MapPin, Users, ArrowUpRight } from "lucide-react";
+import { Star, MapPin, Users, ArrowUpRight, Loader2 } from "lucide-react";
+import axiosInstance from "@/utils/axiosInstance";
+import useUser from "@/hooks/useUser";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface ShopCardProps {
   shop: {
@@ -12,16 +18,57 @@ interface ShopCardProps {
     avatarUrl?: string;
     coverBanner?: string;
     address?: string;
-    followers?: string[];
+    followers?: any[];
     ratings: number;
     category?: string;
   };
 }
 
 const ShopCard = ({ shop }: ShopCardProps) => {
-  const followerCount = shop.followers?.length || 0;
+  const { user } = useUser();
+  const router = useRouter();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(shop.followers?.length || 0);
+  const [loading, setLoading] = useState(false);
+
   const avatar = shop.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${shop.name}`;
   const banner = shop.coverBanner || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop";
+
+  useEffect(() => {
+    if (user && shop.followers) {
+      setIsFollowing(shop.followers.some((f: any) => f.userId === user.id));
+    }
+  }, [user, shop.followers]);
+
+  const handleFollow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast.error("Please login to follow shops");
+      router.push("/login");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isFollowing) {
+        await axiosInstance.post("/product/api/unfollow-shop", { shopId: shop.id });
+        setIsFollowing(false);
+        setFollowerCount((prev) => Math.max(0, prev - 1));
+        toast.success(`Unfollowed ${shop.name}`);
+      } else {
+        await axiosInstance.post("/product/api/follow-shop", { shopId: shop.id });
+        setIsFollowing(true);
+        setFollowerCount((prev) => prev + 1);
+        toast.success(`Following ${shop.name}`);
+      }
+    } catch (error) {
+      toast.error("Failed to update follow status");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-slate-100 h-full flex flex-col">
@@ -60,7 +107,7 @@ const ShopCard = ({ shop }: ShopCardProps) => {
             </h3>
             <div className="flex items-center gap-1 bg-yellow-50 px-2 py-0.5 rounded-lg border border-yellow-100">
               <Star size={12} fill="#eab308" className="text-yellow-500" />
-              <span className="text-[11px] font-bold text-yellow-700">{shop.ratings || "N/A"}</span>
+              <span className="text-[11px] font-bold text-yellow-700">{shop.ratings || "0"}</span>
             </div>
           </div>
 
@@ -97,8 +144,16 @@ const ShopCard = ({ shop }: ShopCardProps) => {
             Visit Store
             <ArrowUpRight size={14} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
           </Link>
-          <button className="px-4 py-2 bg-[#47718F] text-white text-[11px] font-black rounded-xl hover:bg-[#365870] transition-all shadow-sm active:scale-95 uppercase tracking-wider">
-            Follow
+          <button 
+            onClick={handleFollow}
+            disabled={loading}
+            className={`px-4 py-2 rounded-xl text-[11px] font-black transition-all shadow-sm active:scale-95 uppercase tracking-wider flex items-center gap-2 min-w-[80px] justify-center ${
+              isFollowing 
+              ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
+              : "bg-[#47718F] text-white hover:bg-[#365870]"
+            }`}
+          >
+            {loading ? <Loader2 size={12} className="animate-spin" /> : (isFollowing ? "Following" : "Follow")}
           </button>
         </div>
       </div>

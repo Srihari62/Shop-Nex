@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "types": ["node", "react", "react-dom"],
     "jsx": "preserve",
     "noEmit": true,
