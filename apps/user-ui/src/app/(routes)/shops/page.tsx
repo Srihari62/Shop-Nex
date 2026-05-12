@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import ShopCard from "apps/user-ui/src/shared/components/cards/shop-card";
+import axiosInstance from "@/utils/axiosInstance";
+import ShopCard from "@/shared/components/cards/shop-card";
 import {
   SlidersHorizontal,
   X,

@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Star, X, ShoppingCart, Heart } from "lucide-react";
-import { useStore } from "apps/user-ui/src/store";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
-import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import { useStore } from "@/store";
+import useUser from "@/hooks/useUser";
+import useLocationTracking from "@/hooks/useLocationTracking";
+import useDeviceTracking from "@/hooks/useDeviceTracking";
 import { useRouter } from "next/navigation";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import toast from "react-hot-toast";
 
 interface ProductDetailsCardProps {

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { 
   CheckCircle2, 
   Package, 
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useStore } from "apps/user-ui/src/store";
+import { useStore } from "@/store";
 
 const OrderSuccessPage = () => {
   const { id } = useParams();

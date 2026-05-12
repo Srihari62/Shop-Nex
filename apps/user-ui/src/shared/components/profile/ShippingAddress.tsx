@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Plus, MapPin, Trash2, Home, Briefcase, Loader2, Edit3 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import toast from "react-hot-toast";
 import AddAddressModal from "./AddAddressModal";
 

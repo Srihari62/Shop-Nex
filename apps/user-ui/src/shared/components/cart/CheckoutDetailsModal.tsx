@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { X, MapPin, User, Mail, Phone, ArrowRight, Plus, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import axiosInstance from "@/utils/axiosInstance";
+import useUser from "@/hooks/useUser";
 import AddAddressModal from "../profile/AddAddressModal";
 
 interface CheckoutDetailsModalProps {

@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import useRequireAuth from "apps/user-ui/src/hooks/useRequireAuth";
+import useRequireAuth from "@/hooks/useRequireAuth";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import { useWebSocket } from "apps/user-ui/src/context/web-socket-context";
-import ChatSidebar from "apps/user-ui/src/shared/components/chats/ChatSidebar";
-import ChatWindow from "apps/user-ui/src/shared/components/chats/ChatWindow";
+import axiosInstance from "@/utils/axiosInstance";
+import { useWebSocket } from "@/context/web-socket-context";
+import ChatSidebar from "@/shared/components/chats/ChatSidebar";
+import ChatWindow from "@/shared/components/chats/ChatWindow";
 import toast from "react-hot-toast";
 
 const Page = () => {

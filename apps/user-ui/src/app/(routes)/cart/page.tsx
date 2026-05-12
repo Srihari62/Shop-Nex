@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useStore } from "apps/user-ui/src/store";
+import { useStore } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,13 +15,13 @@ import {
   Truck,
   Loader2,
 } from "lucide-react";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
-import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import useUser from "@/hooks/useUser";
+import useLocationTracking from "@/hooks/useLocationTracking";
+import useDeviceTracking from "@/hooks/useDeviceTracking";
 import CheckoutDetailsModal from "../../../shared/components/cart/CheckoutDetailsModal";
 import PaymentModal from "../../../shared/components/cart/PaymentModal";
 import toast from "react-hot-toast";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { useRouter } from "next/navigation";
 
 const CartPage = () => {

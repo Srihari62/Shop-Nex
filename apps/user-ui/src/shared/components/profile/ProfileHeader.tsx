@@ -1,6 +1,6 @@
 import React from "react";
 import { Clock, Truck, CheckCircle2 } from "lucide-react";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import useUser from "@/hooks/useUser";
 
 interface ProfileHeaderProps {
   stats: {

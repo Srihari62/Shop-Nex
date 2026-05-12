@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useStore } from "apps/user-ui/src/store";
+import { useStore } from "@/store";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -12,9 +12,9 @@ import {
   ChevronRight,
   Star
 } from "lucide-react";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
-import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import useUser from "@/hooks/useUser";
+import useLocationTracking from "@/hooks/useLocationTracking";
+import useDeviceTracking from "@/hooks/useDeviceTracking";
 
 const WishlistPage = () => {
   const wishlist = useStore((state: any) => state.wishlist);

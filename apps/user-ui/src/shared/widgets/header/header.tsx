@@ -3,10 +3,10 @@
 import Link from "next/link";
 import React from "react";
 import { HeartPlus, Search, ShoppingCart } from "lucide-react";
-import { ProfileIcon } from "apps/user-ui/src/assets/svgs/profile-icon";
+import { ProfileIcon } from "@/assets/svgs/profile-icon";
 import HeaderBottom from "./header-bottom";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import { useStore } from "apps/user-ui/src/store";
+import useUser from "@/hooks/useUser";
+import { useStore } from "@/store";
 
 const Header = () => {
   const { user, isLoading } = useUser();

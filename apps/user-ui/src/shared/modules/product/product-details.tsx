@@ -14,12 +14,12 @@ import {
   Store,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import ProductCard from "../../components/cards/product-cards";
-import { useStore } from "apps/user-ui/src/store";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
-import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import { useStore } from "@/store";
+import useUser from "@/hooks/useUser";
+import useLocationTracking from "@/hooks/useLocationTracking";
+import useDeviceTracking from "@/hooks/useDeviceTracking";
 import { toast } from "react-hot-toast";
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {

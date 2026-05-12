@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, Heart, Eye, ShoppingCart } from "lucide-react";
 import ProductDetailsCard from "./product-details-card";
-import { useStore } from "apps/user-ui/src/store";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import useLocationTracking from "apps/user-ui/src/hooks/useLocationTracking";
-import useDeviceTracking from "apps/user-ui/src/hooks/useDeviceTracking";
+import { useStore } from "@/store";
+import useUser from "@/hooks/useUser";
+import useLocationTracking from "@/hooks/useLocationTracking";
+import useDeviceTracking from "@/hooks/useDeviceTracking";
 
 interface ProductCardProps {
   product: any;

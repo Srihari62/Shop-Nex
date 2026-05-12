@@ -1,9 +1,9 @@
 "use client";
 
-import { ProfileIcon } from "apps/user-ui/src/assets/svgs/profile-icon";
-import { navItems } from "apps/user-ui/src/configs/constants";
-import useUser from "apps/user-ui/src/hooks/useUser";
-import { useStore } from "apps/user-ui/src/store";
+import { ProfileIcon } from "@/assets/svgs/profile-icon";
+import { navItems } from "@/configs/constants";
+import useUser from "@/hooks/useUser";
+import { useStore } from "@/store";
 import {
   AlignLeft,
   ChevronDownIcon,

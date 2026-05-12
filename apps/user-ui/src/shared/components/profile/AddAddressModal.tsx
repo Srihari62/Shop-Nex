@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 
 interface AddAddressModalProps {
   isOpen: boolean;

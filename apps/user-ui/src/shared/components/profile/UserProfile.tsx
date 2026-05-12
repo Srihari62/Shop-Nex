@@ -12,7 +12,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import useUser from "@/hooks/useUser";
 import Image from "next/image";
 import axiosInstance from "../../../utils/axiosInstance";
 import { useQueryClient } from "@tanstack/react-query";

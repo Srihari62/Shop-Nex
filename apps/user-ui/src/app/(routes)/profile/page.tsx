@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import ProfileSidebar from "../../../shared/components/profile/ProfileSidebar";
 import ProfileHeader from "../../../shared/components/profile/ProfileHeader";
 import UserProfile from "../../../shared/components/profile/UserProfile";
 import ShippingAddress from "../../../shared/components/profile/ShippingAddress";
 import MyOrders from "../../../shared/components/profile/MyOrders";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import useUser from "@/hooks/useUser";
 import {
   Loader2,
   Gift,
@@ -18,7 +18,7 @@ import {
   CreditCard,
   HeadphonesIcon,
 } from "lucide-react";
-import ChangePassword from "apps/user-ui/src/shared/components/profile/ChangePassword";
+import ChangePassword from "@/shared/components/profile/ChangePassword";
 
 const Page = () => {
   const searchParams = useSearchParams();

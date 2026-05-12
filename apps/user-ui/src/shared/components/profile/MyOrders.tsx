@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { Package, ChevronRight, Clock, CheckCircle2, Truck, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
