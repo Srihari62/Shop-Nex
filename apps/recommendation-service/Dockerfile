@@ -1,5 +1,5 @@
 # ---- Base Stage ----
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NX_DAEMON=false
@@ -43,15 +43,15 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # ---- Runner Stage ----
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=6007
 
-RUN apk add --no-cache dumb-init
+RUN apt-get update && apt-get install -y dumb-init && rm -rf /var/lib/apt/lists/*
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs -m -s /bin/sh nodejs
 
 COPY --from=builder /app/apps/recommendation-service/dist/main.js ./main.js
 COPY --from=prod-deps /app/node_modules ./node_modules
