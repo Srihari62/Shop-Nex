@@ -56,8 +56,15 @@ deploy_remote() {
   ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no ubuntu@"$EC2_HOST" "sudo mkdir -p $APP_DIR && sudo chown -R ubuntu:ubuntu $APP_DIR"
   
   scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no \
-    docker-compose.production.yml nginx.conf .env \
+    docker-compose.production.yml nginx.conf \
     ubuntu@"$EC2_HOST":"$APP_DIR"
+
+  if [ -f .env ]; then
+    echo ">>> Copying local .env file to EC2..."
+    scp -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no .env ubuntu@"$EC2_HOST":"$APP_DIR"
+  else
+    echo ">>> No local .env file found. Skipping .env copy (assuming it is already configured on EC2)..."
+  fi
 
   # 2. Run remote deploy commands
   echo ">>> Executing deployment commands on EC2..."

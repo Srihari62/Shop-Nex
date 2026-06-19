@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build, Push, and Deploy to EC2
 
 on:
   push:
@@ -8,30 +8,189 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Force rebuild of all Docker images"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
 
+env:
+  DOCKER_REGISTRY: docker.io
+  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+
 jobs:
-  build-and-push:
-    name: Build and Push ${{ matrix.service }}
+  detect-changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
+    outputs:
+      backends: ${{ steps.set-services.outputs.backends }}
+      frontends: ${{ steps.set-services.outputs.frontends }}
+      has_backend_changes: ${{ steps.set-services.outputs.has_backend_changes }}
+      has_frontend_changes: ${{ steps.set-services.outputs.has_frontend_changes }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            api-gateway:
+              - 'apps/api-gateway/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            auth-service:
+              - 'apps/auth-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            product-service:
+              - 'apps/product-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            order-service:
+              - 'apps/order-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            admin-service:
+              - 'apps/admin-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            chatting-service:
+              - 'apps/chatting-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            recommendation-service:
+              - 'apps/recommendation-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            logger-service:
+              - 'apps/logger-service/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            kafka-consumer:
+              - 'apps/kafka/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            user-ui:
+              - 'apps/user-ui/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            seller-ui:
+              - 'apps/seller-ui/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+            admin-ui:
+              - 'apps/admin-ui/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'tsconfig.base.json'
+              - 'nx.json'
+
+      - name: Set services output
+        id: set-services
+        run: |
+          FORCE="${{ github.event.inputs.force_rebuild }}"
+          BACKENDS=()
+          FRONTENDS=()
+          
+          if [ "$FORCE" = "true" ]; then
+            BACKENDS=("api-gateway" "auth-service" "product-service" "order-service" "admin-service" "chatting-service" "recommendation-service" "logger-service" "kafka-consumer")
+            FRONTENDS=("user-ui" "seller-ui" "admin-ui")
+          else
+            if [ "${{ steps.filter.outputs.api-gateway }}" = "true" ]; then BACKENDS+=("api-gateway"); fi
+            if [ "${{ steps.filter.outputs.auth-service }}" = "true" ]; then BACKENDS+=("auth-service"); fi
+            if [ "${{ steps.filter.outputs.product-service }}" = "true" ]; then BACKENDS+=("product-service"); fi
+            if [ "${{ steps.filter.outputs.order-service }}" = "true" ]; then BACKENDS+=("order-service"); fi
+            if [ "${{ steps.filter.outputs.admin-service }}" = "true" ]; then BACKENDS+=("admin-service"); fi
+            if [ "${{ steps.filter.outputs.chatting-service }}" = "true" ]; then BACKENDS+=("chatting-service"); fi
+            if [ "${{ steps.filter.outputs.recommendation-service }}" = "true" ]; then BACKENDS+=("recommendation-service"); fi
+            if [ "${{ steps.filter.outputs.logger-service }}" = "true" ]; then BACKENDS+=("logger-service"); fi
+            if [ "${{ steps.filter.outputs.kafka-consumer }}" = "true" ]; then BACKENDS+=("kafka-consumer"); fi
+            
+            if [ "${{ steps.filter.outputs.user-ui }}" = "true" ]; then FRONTENDS+=("user-ui"); fi
+            if [ "${{ steps.filter.outputs.seller-ui }}" = "true" ]; then FRONTENDS+=("seller-ui"); fi
+            if [ "${{ steps.filter.outputs.admin-ui }}" = "true" ]; then FRONTENDS+=("admin-ui"); fi
+          fi
+          
+          if [ ${#BACKENDS[@]} -eq 0 ]; then
+            echo "backends=[]" >> $GITHUB_OUTPUT
+            echo "has_backend_changes=false" >> $GITHUB_OUTPUT
+          else
+            JSON_BACKENDS=$(printf '%s\n' "${BACKENDS[@]}" | jq -R . | jq -s -c .)
+            echo "backends=$JSON_BACKENDS" >> $GITHUB_OUTPUT
+            echo "has_backend_changes=true" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ ${#FRONTENDS[@]} -eq 0 ]; then
+            echo "frontends=[]" >> $GITHUB_OUTPUT
+            echo "has_frontend_changes=false" >> $GITHUB_OUTPUT
+          else
+            JSON_FRONTENDS=$(printf '%s\n' "${FRONTENDS[@]}" | jq -R . | jq -s -c .)
+            echo "frontends=$JSON_FRONTENDS" >> $GITHUB_OUTPUT
+            echo "has_frontend_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+  build-backend:
+    name: Build Backend ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_backend_changes == 'true'
     strategy:
       fail-fast: false
       matrix:
-        service:
-          - api-gateway
-          - auth-service
-          - product-service
-          - order-service
-          - admin-service
-          - chatting-service
-          - recommendation-service
-          - logger-service
-          - kafka-consumer
-          - user-ui
-          - seller-ui
-          - admin-ui
+        service: ${{ fromJson(needs.detect-changes.outputs.backends) }}
 
     steps:
       - name: Checkout Repository
@@ -47,8 +206,8 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set Dockerfile path
         id: vars
@@ -67,7 +226,77 @@ jobs:
           file: ${{ steps.vars.outputs.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME || 'eshop' }}/${{ matrix.service }}:latest
-            ${{ secrets.DOCKER_USERNAME || 'eshop' }}/${{ matrix.service }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME || 'eshop' }}/${{ matrix.service }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME || 'eshop' }}/${{ matrix.service }}:${{ github.sha }}
           cache-from: type=gha,scope=${{ matrix.service }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  build-frontend:
+    name: Build Frontend ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_frontend_changes == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.frontends) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME || 'eshop' }}/${{ matrix.service }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME || 'eshop' }}/${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-backend, build-frontend]
+    if: |
+      always() &&
+      github.event_name != 'pull_request' &&
+      (needs.detect-changes.outputs.has_backend_changes == 'true' || needs.detect-changes.outputs.has_frontend_changes == 'true') &&
+      (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
+      (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH Private Key
+        run: |
+          cat << 'EOF' > key.pem
+          ${{ secrets.EC2_PRIVATE_KEY }}
+          EOF
+          chmod 600 key.pem
+
+      - name: Run Deployment Script
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          SSH_KEY_PATH: ./key.pem
+          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          chmod +x scripts/deploy-production.sh
+          ./scripts/deploy-production.sh
