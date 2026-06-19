@@ -403,6 +403,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/ngnix/ssl
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       api-gateway:
         condition: service_healthy

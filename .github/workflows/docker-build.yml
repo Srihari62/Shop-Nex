@@ -209,7 +209,30 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Check if image already exists
+        id: check-image
+        run: |
+          SERVICE="${{ matrix.service }}"
+          REGISTRY_USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          
+          if [ -z "$REGISTRY_USER" ] || [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          TAG="${REGISTRY_USER}/${SERVICE}:${{ github.sha }}"
+          if docker manifest inspect "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo ">>> Image $TAG already exists in Docker Hub. Skipping build."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo ">>> Image $TAG does not exist in Docker Hub. Proceeding with build."
+          fi
+
       - name: Set Dockerfile path
+        if: |
+          github.event.inputs.force_rebuild == 'true' ||
+          steps.check-image.outputs.exists != 'true'
         id: vars
         run: |
           SERVICE="${{ matrix.service }}"
@@ -220,6 +243,9 @@ jobs:
           fi
 
       - name: Build and Push Image
+        if: |
+          github.event.inputs.force_rebuild == 'true' ||
+          steps.check-image.outputs.exists != 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -258,7 +284,30 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Check if image already exists
+        id: check-image
+        run: |
+          SERVICE="${{ matrix.service }}"
+          REGISTRY_USER="${{ secrets.DOCKERHUB_USERNAME }}"
+          
+          if [ -z "$REGISTRY_USER" ] || [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "exists=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          TAG="${REGISTRY_USER}/${SERVICE}:${{ github.sha }}"
+          if docker manifest inspect "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo ">>> Image $TAG already exists in Docker Hub. Skipping build."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo ">>> Image $TAG does not exist in Docker Hub. Proceeding with build."
+          fi
+
       - name: Build and Push Image
+        if: |
+          github.event.inputs.force_rebuild == 'true' ||
+          steps.check-image.outputs.exists != 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
