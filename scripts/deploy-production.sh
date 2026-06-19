@@ -42,6 +42,9 @@ deploy_local() {
   echo ">>> Deploying container stack..."
   docker compose -f docker-compose.production.yml up -d --remove-orphans
 
+  echo ">>> Restarting Nginx to reload DNS and clear IP cache..."
+  docker compose -f docker-compose.production.yml restart nginx
+
   echo ">>> Running database migrations..."
   # Run prisma migrations on the auth-service container
   docker compose -f docker-compose.production.yml exec -T auth-service npx prisma db push --accept-data-loss || true
