@@ -9,7 +9,12 @@ const app = express();
 swaggerUi;
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      "http://localhost:3000",
+      "https://shopnexnow.store",
+      "https://seller.shopnexnow.store",
+      "https://admin.shopnexnow.store"
+    ],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),

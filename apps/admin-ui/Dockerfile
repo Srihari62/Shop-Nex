@@ -27,7 +27,7 @@ WORKDIR /app
 COPY prisma/ ./prisma/
 RUN pnpm prisma generate
 
-ENV NEXT_PUBLIC_SERVER_URI=https://shopnexnow.store
+ENV NEXT_PUBLIC_SERVER_URI=https://admin.shopnexnow.store
 ENV NEXT_PUBLIC_SOCKET_URI=wss://shopnexnow.store/ws-chatting
 ENV NEXT_PUBLIC_USER_UI_LINK=https://shopnexnow.store
 ENV NODE_ENV=production
