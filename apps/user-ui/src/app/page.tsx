@@ -93,7 +93,7 @@ const Page = () => {
               href="/products"
               className="group flex items-center gap-2 text-[#47718F] font-black text-xs uppercase tracking-widest hover:text-[#365870] transition-all"
             >
-              See All Products Here
+              See All Products
               <ArrowRight
                 size={16}
                 className="group-hover:translate-x-1 transition-transform"
