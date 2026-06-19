@@ -21,6 +21,16 @@ deploy_local() {
   echo ">>> Performing Local deployment on this server..."
   cd "$APP_DIR"
   
+  if [ ! -f .env ]; then
+    if [ -f /home/ubuntu/Shop-Nex/.env ]; then
+      echo ">>> Copying .env file from /home/ubuntu/Shop-Nex/ to $APP_DIR..."
+      cp /home/ubuntu/Shop-Nex/.env .env
+    elif [ -f /home/ubuntu/.env ]; then
+      echo ">>> Copying .env file from /home/ubuntu/ to $APP_DIR..."
+      cp /home/ubuntu/.env .env
+    fi
+  fi
+  
   if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
     echo ">>> Logging into Docker Hub..."
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
