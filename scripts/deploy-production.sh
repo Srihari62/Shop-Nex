@@ -47,10 +47,10 @@ deploy_local() {
 
   echo ">>> Running database migrations..."
   # Run prisma migrations on the auth-service container
-  docker compose -f docker-compose.production.yml exec -T auth-service npx prisma db push --accept-data-loss || true
+  docker compose -f docker-compose.production.yml exec -u root -T auth-service npx prisma db push --accept-data-loss || true
 
   echo ">>> Cleaning up old, dangling Docker images..."
-  docker image prune -f
+  docker image prune -f || true
 
   echo ">>> Deployment completed successfully!"
 }
