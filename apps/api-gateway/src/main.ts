@@ -171,7 +171,7 @@ const host = isProduction ? "0.0.0.0" : "localhost";
 const server = app.listen(Number(port), host, () => {
   console.log(`API Gateway listening at http://${host}:${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`CORS Origin: ${JSON.stringify(allowedOrigins)}`);
+  console.log(`CORS Originn: ${JSON.stringify(allowedOrigins)}`);
 
   try {
     initializeSiteConfig();
