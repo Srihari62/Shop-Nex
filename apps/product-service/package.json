@@ -9,6 +9,7 @@
     "swagger-ui-express": "^5.0.1",
     "node-cron": "^4.2.1",
     "imagekit": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
     "@prisma/client": "^6.18.0"
   },
   "devDependencies": {

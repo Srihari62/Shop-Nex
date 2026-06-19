@@ -6,6 +6,7 @@
     "express": "^4.21.2",
     "cookie-parser": "^1.4.7",
     "@tensorflow/tfjs-node": "^4.22.0",
+    "jsonwebtoken": "^9.0.2",
     "@prisma/client": "^6.18.0"
   },
   "devDependencies": {

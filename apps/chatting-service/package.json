@@ -7,6 +7,8 @@
     "cookie-parser": "^1.4.7",
     "kafkajs": "^2.2.4",
     "ws": "^8.18.0",
+    "ioredis": "^5.8.2",
+    "jsonwebtoken": "^9.0.2",
     "@prisma/client": "^6.18.0"
   },
   "devDependencies": {

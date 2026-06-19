@@ -16,6 +16,8 @@
     "nodemailer": "^7.0.10",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
+    "imagekit": "^6.0.0",
+    "ioredis": "^5.8.2",
     "@prisma/client": "^6.18.0"
   },
   "devDependencies": {
