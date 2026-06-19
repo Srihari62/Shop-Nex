@@ -1,0 +1,415 @@
+version: "3.8"
+
+services:
+  # --- Infrastructure Services ---
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: eshop-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 256M
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: eshop-kafka-broker
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "kafka-topics",
+          "--bootstrap-server",
+          "localhost:9092",
+          "--list",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+  kafka-setup:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: eshop-kafka-setup
+    depends_on:
+      kafka:
+        condition: service_healthy
+    command: |
+      bash -c '
+        echo "Creating Kafka Topics...."
+        kafka-topics --create --topic user-events --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1
+        kafka-topics --create --topic logs --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1
+        kafka-topics --create --topic chat.new_message --bootstrap-server kafka:29092 --replication-factor 1 --partitions 1
+        echo "Kafka Topics Created Successfully...."
+      '
+    restart: no
+
+  # --- Backend Services ---
+  api-gateway:
+    image: ${DOCKER_USERNAME:-eshop}/api-gateway:latest
+    container_name: eshop-api-gateway
+    env_file:
+      - .env
+    environment:
+      - PORT=8080
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:8080/gateway-health || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  auth-service:
+    image: ${DOCKER_USERNAME:-eshop}/auth-service:latest
+    container_name: eshop-auth-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6001
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6001/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  product-service:
+    image: ${DOCKER_USERNAME:-eshop}/product-service:latest
+    container_name: eshop-product-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6002
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6002/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  order-service:
+    image: ${DOCKER_USERNAME:-eshop}/order-service:latest
+    container_name: eshop-order-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6004
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6004/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  admin-service:
+    image: ${DOCKER_USERNAME:-eshop}/admin-service:latest
+    container_name: eshop-admin-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6005
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6005/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  chatting-service:
+    image: ${DOCKER_USERNAME:-eshop}/chatting-service:latest
+    container_name: eshop-chatting-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6006
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6006/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  recommendation-service:
+    image: ${DOCKER_USERNAME:-eshop}/recommendation-service:latest
+    container_name: eshop-recommendation-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6007
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6007/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+
+  logger-service:
+    image: ${DOCKER_USERNAME:-eshop}/logger-service:latest
+    container_name: eshop-logger-service
+    env_file:
+      - .env
+    environment:
+      - PORT=6008
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:6008/api || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 256M
+
+  kafka-consumer:
+    image: ${DOCKER_USERNAME:-eshop}/kafka-consumer:latest
+    container_name: eshop-kafka-consumer
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "main.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+          memory: 256M
+
+  # --- Frontend Applications ---
+  user-ui:
+    image: ${DOCKER_USERNAME:-eshop}/user-ui:latest
+    container_name: eshop-user-ui
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SERVER_URI=https://shopnexnow.store
+      - NEXT_PUBLIC_CHATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
+      - NEXT_PUBLIC_SELLER_SERVER_URI=https://seller.shopnexnow.store
+      - NEXT_PUBLIC_STRIPE_PUBLIC_KEY=pk_test_51PXzbSSGnmKVDMGjMqZWNz1dVlfYkrLFxKz8odWopqSVaZjh6HMA1ykIybHoDmGYbfC35RcmxpfCXDjhzmglqh3T00C3MjQgjL
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+
+  seller-ui:
+    image: ${DOCKER_USERNAME:-eshop}/seller-ui:latest
+    container_name: eshop-seller-ui
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SERVER_URI=https://shopnexnow.store/
+      - NEXT_PUBLIC_USER_UI_LINK=https://shopnexnow.store
+      - NEXT_PUBLIC_CHAATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+
+  admin-ui:
+    image: ${DOCKER_USERNAME:-eshop}/admin-ui:latest
+    container_name: eshop-admin-ui
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SERVER_URI=https://shopnexnow.store
+      - NEXT_PUBLIC_SOCKET_URI=wss://shopnexnow.store/ws-chatting
+      - NEXT_PUBLIC_USER_UI_LINK=https://shopnexnow.store
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+
+  nginx:
+    image: nginx:alpine
+    container_name: eshop-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/ngnix/ssl
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+      user-ui:
+        condition: service_healthy
+      seller-ui:
+        condition: service_healthy
+      admin-ui:
+        condition: service_healthy
+    restart: unless-stopped

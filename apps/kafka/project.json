@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/kafka",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/kafka/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-kafka -f apps/kafka/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/kafka:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/kafka:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/kafka:build:production"
+        }
+      }
+    }
+  }
+}

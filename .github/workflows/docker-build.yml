@@ -1,0 +1,73 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    name: Build and Push ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - product-service
+          - order-service
+          - admin-service
+          - chatting-service
+          - recommendation-service
+          - logger-service
+          - kafka-consumer
+          - user-ui
+          - seller-ui
+          - admin-ui
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set Dockerfile path
+        id: vars
+        run: |
+          SERVICE="${{ matrix.service }}"
+          if [ "$SERVICE" = "kafka-consumer" ]; then
+            echo "dockerfile=apps/kafka/Dockerfile" >> $GITHUB_OUTPUT
+          else
+            echo "dockerfile=apps/$SERVICE/Dockerfile" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ steps.vars.outputs.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME || 'eshop' }}/${{ matrix.service }}:latest
+            ${{ secrets.DOCKER_USERNAME || 'eshop' }}/${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}

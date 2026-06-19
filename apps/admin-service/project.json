@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/admin-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/admin-service/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-admin-service -f apps/admin-service/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/admin-service:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/admin-service:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/admin-service:build:production"
+        }
+      }
+    }
+  }
+}

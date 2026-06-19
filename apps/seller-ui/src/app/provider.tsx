@@ -2,8 +2,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { Toaster } from "react-hot-toast";
-import { WebSocketProvider } from "apps/seller-ui/src/context/web-socket-context";
-import useSeller from "apps/seller-ui/src/hooks/useSeller";
+import { WebSocketProvider } from "@/context/web-socket-context";
+import useSeller from "@/hooks/useSeller";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(

@@ -6,9 +6,9 @@ import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import countries from "apps/seller-ui/src/utils/countries";
+import countries from "@/utils/countries";
 import CreateShop from "../../shared/modules/auth/create-shop";
-import StripeLogo from "apps/seller-ui/src/assets/svgs/stripe-logo";
+import StripeLogo from "@/assets/svgs/stripe-logo";
 
 // type FormData = {
 //   name: string;

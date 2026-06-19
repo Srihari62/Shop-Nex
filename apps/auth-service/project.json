@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/auth-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/auth-service/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-auth-service -f apps/auth-service/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/auth-service:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/auth-service:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/auth-service:build:production"
+        }
+      }
+    }
+  }
+}

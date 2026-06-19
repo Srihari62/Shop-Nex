@@ -20,15 +20,31 @@ import {
 
 // ─── Constants ───────────────────────────────────────────────────────
 const CATEGORIES = [
-  "Clothing", "Electronics", "Grocery", "Restaurant", "Beauty", 
-  "Furniture", "Automotive", "Books", "Toys", "Sports", 
-  "Hardware", "Pet", "Medical", "Jewelry", "Florist", 
-  "Baby", "Art", "Music", "Technology", "Garden"
+  "Clothing",
+  "Electronics",
+  "Grocery",
+  "Restaurant",
+  "Beauty",
+  "Furniture",
+  "Automotive",
+  "Books",
+  "Toys",
+  "Sports",
+  "Hardware",
+  "Pet",
+  "Medical",
+  "Jewelry",
+  "Florist",
+  "Baby",
+  "Art",
+  "Music",
+  "Technology",
+  "Garden",
 ];
 
 const COUNTRIES = ["Bangladesh", "USA", "UK", "India"];
 
-const ShopsPage = () => {
+const ShopsPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -59,27 +75,39 @@ const ShopsPage = () => {
   // ─── Sync State -> URL ─────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams();
-    if (selectedCategories.length) params.set("categories", selectedCategories.join(","));
-    if (selectedCountries.length) params.set("countries", selectedCountries.join(","));
+    if (selectedCategories.length)
+      params.set("categories", selectedCategories.join(","));
+    if (selectedCountries.length)
+      params.set("countries", selectedCountries.join(","));
     if (currentPage > 1) params.set("page", String(currentPage));
     if (debouncedSearch) params.set("q", debouncedSearch);
-    
+
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState(null, "", newUrl);
   }, [selectedCategories, selectedCountries, currentPage, debouncedSearch]);
 
   // ─── Fetch Shops ──────────────────────────────────────────────────
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["filtered-shops", selectedCategories, selectedCountries, currentPage, debouncedSearch],
+    queryKey: [
+      "filtered-shops",
+      selectedCategories,
+      selectedCountries,
+      currentPage,
+      debouncedSearch,
+    ],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (selectedCategories.length) params.set("categories", selectedCategories.join(","));
-      if (selectedCountries.length) params.set("countries", selectedCountries.join(","));
+      if (selectedCategories.length)
+        params.set("categories", selectedCategories.join(","));
+      if (selectedCountries.length)
+        params.set("countries", selectedCountries.join(","));
       params.set("page", String(currentPage));
       params.set("limit", "6");
       if (debouncedSearch) params.set("q", debouncedSearch);
 
-      const res = await axiosInstance.get(`/product/api/get-filtered-shops?${params.toString()}`);
+      const res = await axiosInstance.get(
+        `/product/api/get-filtered-shops?${params.toString()}`,
+      );
       return res.data;
     },
   });
@@ -90,14 +118,16 @@ const ShopsPage = () => {
   // ─── Handlers ──────────────────────────────────────────────────────
   const toggleCategory = (cat: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
     setCurrentPage(1);
   };
 
   const toggleCountry = (country: string) => {
     setSelectedCountries((prev) =>
-      prev.includes(country) ? prev.filter((c) => c !== country) : [...prev, country]
+      prev.includes(country)
+        ? prev.filter((c) => c !== country)
+        : [...prev, country],
     );
     setCurrentPage(1);
   };
@@ -155,7 +185,6 @@ const ShopsPage = () => {
       {/* ─── Main Content ─── */}
       <main className="w-[90%] md:w-[80%] mx-auto py-10">
         <div className="flex flex-col lg:flex-row gap-10">
-          
           {/* Sidebar Filters - Desktop */}
           <aside className="hidden lg:block w-72 shrink-0 space-y-8">
             {/* Category Filter */}
@@ -166,7 +195,10 @@ const ShopsPage = () => {
                   Categories
                 </h3>
                 {selectedCategories.length > 0 && (
-                  <button onClick={() => setSelectedCategories([])} className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-wider">
+                  <button
+                    onClick={() => setSelectedCategories([])}
+                    className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-wider"
+                  >
                     Clear
                   </button>
                 )}
@@ -187,12 +219,20 @@ const ShopsPage = () => {
                       onChange={() => toggleCategory(cat)}
                       className="hidden"
                     />
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                      selectedCategories.includes(cat) ? "border-white" : "border-slate-300"
-                    }`}>
-                      {selectedCategories.includes(cat) && <div className="w-2 h-2 bg-white rounded-full" />}
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                        selectedCategories.includes(cat)
+                          ? "border-white"
+                          : "border-slate-300"
+                      }`}
+                    >
+                      {selectedCategories.includes(cat) && (
+                        <div className="w-2 h-2 bg-white rounded-full" />
+                      )}
                     </div>
-                    <span className="text-[13px] font-bold tracking-tight">{cat}</span>
+                    <span className="text-[13px] font-bold tracking-tight">
+                      {cat}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -206,7 +246,10 @@ const ShopsPage = () => {
                   Countries
                 </h3>
                 {selectedCountries.length > 0 && (
-                  <button onClick={() => setSelectedCountries([])} className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-wider">
+                  <button
+                    onClick={() => setSelectedCountries([])}
+                    className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-wider"
+                  >
                     Clear
                   </button>
                 )}
@@ -227,12 +270,20 @@ const ShopsPage = () => {
                       onChange={() => toggleCountry(country)}
                       className="hidden"
                     />
-                    <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                      selectedCountries.includes(country) ? "border-white" : "border-slate-300"
-                    }`}>
-                      {selectedCountries.includes(country) && <div className="w-2 h-2 bg-white rounded-full" />}
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                        selectedCountries.includes(country)
+                          ? "border-white"
+                          : "border-slate-300"
+                      }`}
+                    >
+                      {selectedCountries.includes(country) && (
+                        <div className="w-2 h-2 bg-white rounded-full" />
+                      )}
                     </div>
-                    <span className="text-[13px] font-bold tracking-tight">{country}</span>
+                    <span className="text-[13px] font-bold tracking-tight">
+                      {country}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -243,7 +294,9 @@ const ShopsPage = () => {
               <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
                 <Store size={160} />
               </div>
-              <h4 className="text-xl font-black mb-2 relative z-10">Become a Seller</h4>
+              <h4 className="text-xl font-black mb-2 relative z-10">
+                Become a Seller
+              </h4>
               <p className="text-white/70 text-xs font-medium mb-6 relative z-10 leading-relaxed">
                 Start your online business journey with our platform today.
               </p>
@@ -257,28 +310,32 @@ const ShopsPage = () => {
           <div className="flex-1">
             {/* Mobile Filters Toggle & Toolbar */}
             <div className="flex items-center justify-between mb-8 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm lg:hidden">
-               <button 
+              <button
                 onClick={() => setIsFilterOpen(true)}
                 className="flex items-center gap-2 text-slate-700 font-bold text-sm px-4 py-2"
-               >
-                 <SlidersHorizontal size={18} />
-                 Filters
-                 {(selectedCategories.length > 0 || selectedCountries.length > 0) && (
-                   <span className="bg-[#47718F] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
-                     {selectedCategories.length + selectedCountries.length}
-                   </span>
-                 )}
-               </button>
-               <div className="flex items-center gap-4 px-4 text-slate-400">
-                 <LayoutGrid size={20} className="text-[#47718F]" />
-               </div>
+              >
+                <SlidersHorizontal size={18} />
+                Filters
+                {(selectedCategories.length > 0 ||
+                  selectedCountries.length > 0) && (
+                  <span className="bg-[#47718F] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">
+                    {selectedCategories.length + selectedCountries.length}
+                  </span>
+                )}
+              </button>
+              <div className="flex items-center gap-4 px-4 text-slate-400">
+                <LayoutGrid size={20} className="text-[#47718F]" />
+              </div>
             </div>
 
             {/* Results Grid */}
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-[400px] bg-white rounded-3xl animate-pulse border border-slate-100" />
+                  <div
+                    key={i}
+                    className="h-[400px] bg-white rounded-3xl animate-pulse border border-slate-100"
+                  />
                 ))}
               </div>
             ) : shops.length > 0 ? (
@@ -315,9 +372,13 @@ const ShopsPage = () => {
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                   <Store size={40} className="text-slate-300" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-800 mb-2">No shops found</h3>
-                <p className="text-slate-500 font-medium">Try adjusting your filters or search query</p>
-                <button 
+                <h3 className="text-2xl font-black text-slate-800 mb-2">
+                  No shops found
+                </h3>
+                <p className="text-slate-500 font-medium">
+                  Try adjusting your filters or search query
+                </p>
+                <button
                   onClick={clearFilters}
                   className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all"
                 >
@@ -332,18 +393,28 @@ const ShopsPage = () => {
       {/* ─── Mobile Filters Drawer ─── */}
       {isFilterOpen && (
         <div className="fixed inset-0 z-[100] lg:hidden">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsFilterOpen(false)} />
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setIsFilterOpen(false)}
+          />
           <div className="absolute right-0 top-0 bottom-0 w-[320px] bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Filters</h3>
-              <button onClick={() => setIsFilterOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">
+                Filters
+              </h3>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-10">
               {/* Categories */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Categories</h4>
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">
+                  Categories
+                </h4>
                 <div className="space-y-2">
                   {CATEGORIES.map((cat) => (
                     <label
@@ -361,7 +432,9 @@ const ShopsPage = () => {
                         className="hidden"
                       />
                       <span className="text-sm font-bold flex-1">{cat}</span>
-                      {selectedCategories.includes(cat) && <div className="w-2 h-2 bg-[#47718F] rounded-full" />}
+                      {selectedCategories.includes(cat) && (
+                        <div className="w-2 h-2 bg-[#47718F] rounded-full" />
+                      )}
                     </label>
                   ))}
                 </div>
@@ -369,7 +442,9 @@ const ShopsPage = () => {
 
               {/* Countries */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Countries</h4>
+                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">
+                  Countries
+                </h4>
                 <div className="space-y-2">
                   {COUNTRIES.map((country) => (
                     <label
@@ -386,21 +461,43 @@ const ShopsPage = () => {
                         onChange={() => toggleCountry(country)}
                         className="hidden"
                       />
-                      <span className="text-sm font-bold flex-1">{country}</span>
-                      {selectedCountries.includes(country) && <div className="w-2 h-2 bg-[#47718F] rounded-full" />}
+                      <span className="text-sm font-bold flex-1">
+                        {country}
+                      </span>
+                      {selectedCountries.includes(country) && (
+                        <div className="w-2 h-2 bg-[#47718F] rounded-full" />
+                      )}
                     </label>
                   ))}
                 </div>
               </div>
             </div>
             <div className="p-6 border-t border-slate-100 grid grid-cols-2 gap-4">
-               <button onClick={clearFilters} className="py-4 text-xs font-black uppercase tracking-widest text-slate-400">Reset</button>
-               <button onClick={() => setIsFilterOpen(false)} className="py-4 bg-[#47718F] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg">Apply</button>
+              <button
+                onClick={clearFilters}
+                className="py-4 text-xs font-black uppercase tracking-widest text-slate-400"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setIsFilterOpen(false)}
+                className="py-4 bg-[#47718F] text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg"
+              >
+                Apply
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+const ShopsPage = () => {
+  return (
+    <React.Suspense fallback={null}>
+      <ShopsPageContent />
+    </React.Suspense>
   );
 };
 

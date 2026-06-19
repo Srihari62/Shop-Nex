@@ -9,7 +9,7 @@ export const getUserActivity = async (userId: string) => {
       select: { actions: true },
     });
 
-    return userActivity?.actions || [];
+    return (userActivity?.actions as any) || [];
   } catch (error) {
     console.error(`Error Fetching user activity for ${userId}:`, error);
     return [];

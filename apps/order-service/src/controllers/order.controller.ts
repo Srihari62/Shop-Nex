@@ -7,7 +7,7 @@ import crypto from 'crypto'
 import { sendEmail } from "../utils/send-email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-12-15.clover'
+    apiVersion: '2025-12-15.clover' as any
 })
 
 // Shared order processing logic - Hardened for Production
@@ -201,7 +201,8 @@ export const createPaymentIntent = async (req: any, res: Response, next: NextFun
         // Fetch session data from Redis to get the shipping address ID
         const sessionData = await redis.get(`payment-session:${sessionId}`);
         if (!sessionData) {
-            return res.status(404).json({ message: "Session not found or expired" });
+            res.status(404).json({ message: "Session not found or expired" });
+            return;
         }
         const session = JSON.parse(sessionData);
 
@@ -229,9 +230,11 @@ export const createPaymentIntent = async (req: any, res: Response, next: NextFun
         
         console.log(`[Stripe] Intent created successfully: ${paymentIntent.id}`);
         res.send({ clientSecret: paymentIntent.client_secret });
+        return;
     } catch (error: any) {
         console.error("Stripe Payment Intent Error:", error.message);
         res.status(400).json({ message: error.message });
+        return;
     }
 }
 

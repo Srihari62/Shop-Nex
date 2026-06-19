@@ -30,7 +30,10 @@ export const getUserById = async (req: Request, res: Response) => {
         followings: true
       }
     });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
     
     // Fetch address separately since it's a separate model referencing userId
     const userAddress = await prisma.address.findFirst({
@@ -72,7 +75,10 @@ export const getProductById = async (req: Request, res: Response) => {
         images: true
       }
     });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    if (!product) {
+      res.status(404).json({ message: "Product not found" });
+      return;
+    }
     res.status(200).json({ success: true, product });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -116,7 +122,10 @@ export const getSellerById = async (req: Request, res: Response) => {
         }
       }
     });
-    if (!seller) return res.status(404).json({ message: "Seller/Shop not found" });
+    if (!seller) {
+      res.status(404).json({ message: "Seller/Shop not found" });
+      return;
+    }
     res.status(200).json({ success: true, seller });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -146,11 +155,13 @@ export const updateUserRole = async (req: Request, res: Response) => {
     const { email, role } = req.body;
 
     if (!email || !role) {
-      return res.status(400).json({ success: false, message: "Email and Role are required" });
+      res.status(400).json({ success: false, message: "Email and Role are required" });
+      return;
     }
 
     if (role !== "admin" && role !== "user") {
-      return res.status(400).json({ success: false, message: "Invalid role. Only 'admin' or 'user' are allowed." });
+      res.status(400).json({ success: false, message: "Invalid role. Only 'admin' or 'user' are allowed." });
+      return;
     }
 
     const user = await prisma.users.findUnique({
@@ -158,7 +169,8 @@ export const updateUserRole = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found with this email" });
+      res.status(404).json({ success: false, message: "User not found with this email" });
+      return;
     }
 
     const updatedUser = await prisma.users.update({

@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/recommendation-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/recommendation-service/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-recommendation-service -f apps/recommendation-service/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/recommendation-service:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/recommendation-service:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/recommendation-service:build:production"
+        }
+      }
+    }
+  }
+}

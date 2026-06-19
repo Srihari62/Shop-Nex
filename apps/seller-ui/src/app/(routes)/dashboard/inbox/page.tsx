@@ -3,14 +3,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
-import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
-import { useWebSocket } from "apps/seller-ui/src/context/web-socket-context";
-import ChatSidebar from "apps/seller-ui/src/app/shared/components/chats/ChatSidebar";
-import ChatWindow from "apps/seller-ui/src/app/shared/components/chats/ChatWindow";
+import axiosInstance from "@/utils/axiosInstance";
+import { useWebSocket } from "@/context/web-socket-context";
+import ChatSidebar from "@/app/shared/components/chats/ChatSidebar";
+import ChatWindow from "@/app/shared/components/chats/ChatWindow";
 import toast from "react-hot-toast";
-import useSeller from "apps/seller-ui/src/hooks/useSeller";
+import useSeller from "@/hooks/useSeller";
 
-const Page = () => {
+const InboxPageContent = () => {
   const searchParams = useSearchParams();
   const { seller, isLoading: sellerLoading } = useSeller();
   const router = useRouter();
@@ -346,6 +346,18 @@ const Page = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Page = () => {
+  return (
+    <React.Suspense fallback={
+      <div className="w-full h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0085ff]"></div>
+      </div>
+    }>
+      <InboxPageContent />
+    </React.Suspense>
   );
 };
 

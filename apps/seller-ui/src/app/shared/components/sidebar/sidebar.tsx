@@ -1,13 +1,13 @@
 "use client";
 
-import useSidebar from "apps/seller-ui/src/hooks/useSidebar";
+import useSidebar from "@/hooks/useSidebar";
 import { usePathname } from "next/navigation";
 import React, { useEffect } from "react";
 import Box from "../box";
 import { Sidebar } from "./sidebar.styles";
 import Link from "next/link";
-import useSeller from "apps/seller-ui/src/hooks/useSeller";
-import Logo from "apps/seller-ui/src/assets/svgs/logo";
+import useSeller from "@/hooks/useSeller";
+import Logo from "@/assets/svgs/logo";
 import SidebarItem from "./sidebar.item";
 import {
   BellPlus,

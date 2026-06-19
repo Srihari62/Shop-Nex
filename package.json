@@ -3,12 +3,25 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "npx nx run-many --target=serve --all",
+    "dev": "npx nx run-many --target=serve --all --maxParallel=10",
+    "build": "npx nx run-many --target=build --all",
+    "test": "npx nx run-many --target=test --all",
+    "lint": "npx nx run-many --target=lint --all",
     "auth-docs": "node apps/auth-service/src/swagger.js",
     "product-docs": "node apps/product-service/src/swagger.js",
     "user-ui": "npx nx run-many --target=dev --all --projects=user-ui",
     "seller-ui": "npx nx run-many --target=dev --all --projects=seller-ui",
-    "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui"
+    "admin-ui": "npx nx run-many --target=dev --all --projects=admin-ui",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma db push",
+    "docker:prod" : "bash scripts/local-production.sh",
+    "docker:clean": "bash scripts/local-production.sh --clean",
+    "docker:build" : "bash scripts/local-production.sh --build-only",
+    "docker:run" : "bash scripts/local-production.sh --run-only",
+    "docker:stop" : "bash scripts/local-production.sh --stop",
+    "docker:logs" : "bash scripts/local-production.sh --logs",
+    "kafka:up" : "docker compose -f docker-compose.production.yml up kafka zookeeper -d",
+    "kafka:down" : "docker compose -f docker-compose.production.yml stop kafka zookeeper -d"
   },
   "private": true,
   "dependencies": {

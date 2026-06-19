@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { format } from "date-fns";
 
 const OrdersPage = () => {

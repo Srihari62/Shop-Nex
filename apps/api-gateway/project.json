@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/api-gateway",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/api-gateway/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-api-gateway -f apps/api-gateway/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/api-gateway:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/api-gateway:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/api-gateway:build:production"
+        }
+      }
+    }
+  }
+}

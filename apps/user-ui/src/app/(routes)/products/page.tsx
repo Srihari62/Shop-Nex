@@ -82,7 +82,7 @@ const FilterSection = ({
 };
 
 // ─── Main Page ──────────────────────────────────────────────────────
-const ProductsPage = () => {
+const ProductsPageContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -708,6 +708,14 @@ const ProductsPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProductsPage = () => {
+  return (
+    <React.Suspense fallback={null}>
+      <ProductsPageContent />
+    </React.Suspense>
   );
 };
 

@@ -1,0 +1,37 @@
+# Ignore dependency directories
+node_modules/
+**/node_modules/
+
+# Ignore build outputs
+dist/
+**/dist/
+.next/
+**/.next/
+out/
+**/out/
+
+# Ignore cache and temporary files
+.nx/
+.pnpm-store/
+tmp/
+**/.cache/
+
+# Ignore version control and IDE files
+.git/
+.gitignore
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignore environment variables and secrets
+.env
+.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem

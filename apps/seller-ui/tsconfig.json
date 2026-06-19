@@ -15,14 +15,15 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@packages/*": ["../../packages/*"]
     },
     "outDir": "dist",
     "rootDir": "../../",

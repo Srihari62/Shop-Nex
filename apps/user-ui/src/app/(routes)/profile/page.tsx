@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import ChangePassword from "@/shared/components/profile/ChangePassword";
 
-const Page = () => {
+const ProfilePageContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("active") || "profile";
@@ -161,6 +161,14 @@ const Page = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Page = () => {
+  return (
+    <React.Suspense fallback={null}>
+      <ProfilePageContent />
+    </React.Suspense>
   );
 };
 

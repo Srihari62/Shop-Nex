@@ -10,7 +10,6 @@ import {
   Minus,
   ShoppingBag,
   ArrowRight,
-  CreditCard,
   ShieldCheck,
   Truck,
   Loader2,
@@ -29,7 +28,6 @@ const CartPage = () => {
   const addToCart = useStore((state: any) => state.addToCart);
   const removeFromCart = useStore((state: any) => state.removeFromCart);
   const decrementQuantity = useStore((state: any) => state.decrementQuantity);
-  const clearCart = useStore((state: any) => state.clearCart);
 
   const { user, isLoading } = useUser();
   const location = useLocationTracking();

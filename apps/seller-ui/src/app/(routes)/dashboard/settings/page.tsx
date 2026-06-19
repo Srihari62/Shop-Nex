@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   Settings
 } from "lucide-react";
-import useSeller from "apps/seller-ui/src/hooks/useSeller";
+import useSeller from "@/hooks/useSeller";
 import toast from "react-hot-toast";
 
 type Tab = "General" | "Custom Domains" | "Withdraw Method";

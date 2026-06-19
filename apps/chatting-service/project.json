@@ -1,0 +1,30 @@
+{
+  "name": "@eshop/chatting-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/chatting-service/src",
+  "targets": {
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-chatting-service -f apps/chatting-service/Dockerfile ."
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "@eshop/chatting-service:build",
+        "port": 0
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "@eshop/chatting-service:build:development"
+        },
+        "production": {
+          "buildTarget": "@eshop/chatting-service:build:production"
+        }
+      }
+    }
+  }
+}

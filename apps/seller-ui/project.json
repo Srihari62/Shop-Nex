@@ -1,0 +1,17 @@
+{
+  "name": "@eshop/seller-ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/seller-ui/src",
+  "targets": {
+    "build": {
+      "cache": false
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -t eshop-seller-ui -f apps/seller-ui/Dockerfile ."
+      }
+    }
+  }
+}

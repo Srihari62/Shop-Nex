@@ -10,7 +10,7 @@ try {
         select: {actions: true}
     });
 
-    let updatedActions :any[] = existingData?.actions || []
+    let updatedActions :any[] = (existingData?.actions as any) || []
 
     const actionExists = updatedActions.some((entry: any) => entry.productId === event.productId && entry.action === event.action)
     

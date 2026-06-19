@@ -12,6 +12,7 @@ const nextConfig = {
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {
   },
+  output: 'standalone',
   images: {
     remotePatterns: [
       { hostname: "ik.imagekit.io" },

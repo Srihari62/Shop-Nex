@@ -1,10 +1,10 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { AxiosError } from "axios";
 import { ChevronRight, Plus, Trash, X } from "lucide-react";
 import Link from "next/link";
-import Input from "packages/components/input";
+import Input from "@packages/components/input";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";

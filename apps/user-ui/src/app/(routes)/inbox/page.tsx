@@ -10,7 +10,7 @@ import ChatSidebar from "@/shared/components/chats/ChatSidebar";
 import ChatWindow from "@/shared/components/chats/ChatWindow";
 import toast from "react-hot-toast";
 
-const Page = () => {
+const InboxPageContent = () => {
   const searchParams = useSearchParams();
   const { user, isLoading: userLoading } = useRequireAuth();
   const router = useRouter();
@@ -342,6 +342,14 @@ const Page = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Page = () => {
+  return (
+    <React.Suspense fallback={null}>
+      <InboxPageContent />
+    </React.Suspense>
   );
 };
 
