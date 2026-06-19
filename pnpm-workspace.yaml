@@ -5,3 +5,5 @@ packages:
   - "packages/libs/*"
   - "packages/middleware"
   - "packages/utils/*"
+
+# Trigger initial full build of all services
