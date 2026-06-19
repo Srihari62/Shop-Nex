@@ -72,7 +72,7 @@ deploy_remote() {
     "export DOCKER_USERNAME=$DOCKER_USERNAME; \
      export DOCKER_PASSWORD=$DOCKER_PASSWORD; \
      export APP_DIR=$APP_DIR; \
-     bash -s" < "$0" --local
+     bash -s -- --local" < "$0"
 }
 
 # Parse command line arguments
