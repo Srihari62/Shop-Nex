@@ -6,4 +6,4 @@ packages:
   - "packages/middleware"
   - "packages/utils/*"
 
-# Trigger initial full build of all services
+# Trigger initial full build of all servicess
