@@ -54,6 +54,7 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
 COPY --from=builder /app/apps/auth-service/dist/main.js ./main.js
+COPY --from=builder /app/apps/auth-service/src/utils/email-templates ./apps/auth-service/src/utils/email-templates
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 

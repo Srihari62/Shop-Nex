@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import { WebSocketProvider } from "@/context/web-socket-context";
 import useSeller from "@/hooks/useSeller";
 
+import { usePathname } from "next/navigation";
+
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
     () =>
@@ -27,7 +29,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ProvidersWithWs = ({ children }: { children: React.ReactNode }) => {
-  const { seller } = useSeller();
+  const pathname = usePathname();
+  const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const { seller } = useSeller({ enabled: !isAuthPage });
   return (
     <WebSocketProvider user={seller}>
       {children}

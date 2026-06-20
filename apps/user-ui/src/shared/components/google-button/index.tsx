@@ -1,7 +1,14 @@
+import toast from "react-hot-toast";
+
 export default function GoogleButton() {
+  const handleClick = () => {
+    toast.error("Google Sign-in is not implemented yet. Please use email and password to log in.");
+  };
+
   return (
     <div className="w-full flex justify-center">
       <div
+        onClick={handleClick}
         className="
         inline-flex items-center gap-3 px-4 py-2
         border border-gray-300 bg-gray-100 
@@ -48,3 +55,4 @@ export default function GoogleButton() {
     </div>
   );
 }
+

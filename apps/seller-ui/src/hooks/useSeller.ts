@@ -9,7 +9,7 @@ const fetchSeller = async () => {
   return response.data.seller;
 };
 
-const useSeller = () => {
+const useSeller = (options?: { enabled?: boolean }) => {
   const {
     data: seller,
     isLoading,
@@ -20,6 +20,7 @@ const useSeller = () => {
     queryFn: fetchSeller,
     staleTime: 1000 * 6 * 5,
     retry: 1,
+    ...options,
   });
   return { seller, isLoading, isError, refetch };
 };
