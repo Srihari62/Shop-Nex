@@ -29,6 +29,7 @@ RUN pnpm prisma generate
 
 ENV NEXT_PUBLIC_SERVER_URI=https://shopnexnow.store
 ENV NEXT_PUBLIC_CHATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
+ENV NEXT_PUBLIC_CHAATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
 ENV NEXT_PUBLIC_SELLER_SERVER_URI=https://seller.shopnexnow.store
 ENV NEXT_PUBLIC_STRIPE_PUBLIC_KEY=pk_test_51PXzbSSGnmKVDMGjMqZWNz1dVlfYkrLFxKz8odWopqSVaZjh6HMA1ykIybHoDmGYbfC35RcmxpfCXDjhzmglqh3T00C3MjQgjL
 ENV NODE_ENV=production

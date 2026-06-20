@@ -29,6 +29,7 @@ RUN pnpm prisma generate
 
 ENV NEXT_PUBLIC_SERVER_URI=https://seller.shopnexnow.store
 ENV NEXT_PUBLIC_USER_UI_LINK=https://shopnexnow.store
+ENV NEXT_PUBLIC_CHATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
 ENV NEXT_PUBLIC_CHAATTING_WEBSOCKET_URI=wss://shopnexnow.store/ws-chatting
 ENV NODE_ENV=production
 RUN pnpm nx build @eshop/seller-ui

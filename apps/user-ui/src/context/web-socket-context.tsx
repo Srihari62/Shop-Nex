@@ -21,7 +21,11 @@ export const WebSocketProvider = ({
       return;
     }
     
-    const ws = new WebSocket(process.env.NEXT_PUBLIC_CHAATTING_WEBSOCKET_URI!);
+    const ws = new WebSocket(
+      process.env.NEXT_PUBLIC_CHATTING_WEBSOCKET_URI ||
+        process.env.NEXT_PUBLIC_CHAATTING_WEBSOCKET_URI ||
+        ""
+    );
     wsRef.current = ws;
 
     ws.onopen = () => {
