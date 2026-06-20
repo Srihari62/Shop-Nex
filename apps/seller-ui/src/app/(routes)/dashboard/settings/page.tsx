@@ -255,9 +255,16 @@ const SettingsPage = () => {
                   <button 
                     onClick={connectStripe}
                     disabled={isConnectingStripe}
-                    className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-[10px] px-12 py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50"
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-[10px] px-12 py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
                   >
-                    {isConnectingStripe ? "Connecting..." : "Connect Stripe Account"}
+                    {isConnectingStripe ? (
+                      <>
+                        <Loader2 className="animate-spin w-4 h-4" />
+                        Connecting...
+                      </>
+                    ) : (
+                      "Connect Stripe Account"
+                    )}
                   </button>
                 </div>
               )}

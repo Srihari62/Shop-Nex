@@ -12,10 +12,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 // Shared order processing logic - Hardened for Production
 const processOrderCreation = async (userId: string, sessionId: string, paymentMethod: string) => {
+    const createdKey = `order-created:${sessionId}`;
+    // Atomically set processed flag / acquire lock to prevent duplicate creation
+    const lockAcquired = await redis.set(createdKey, "true", "EX", 86400, "NX");
+    if (!lockAcquired) {
+        console.log(`[Order] Order for session ${sessionId} is already processed or being processed.`);
+        return;
+    }
+
     const sessionKey = `payment-session:${sessionId}`;
     const sessionData = await redis.get(sessionKey);
 
     if (!sessionData) {
+        // Release lock so it can be retried later
+        await redis.del(createdKey);
         throw new Error(`Critical: Payment session ${sessionId} not found or expired.`);
     }
 
@@ -290,7 +300,33 @@ export const verifyPaymentSession = async (req: any, res: Response, next: NextFu
         const sessionId = req.query.sessionId as string;
         const sessionData = await redis.get(`payment-session:${sessionId}`);
         if (!sessionData) return res.status(404).json({ message: "Session expired" });
-        return res.status(200).json({ success: true, session: JSON.parse(sessionData) });
+
+        const session = JSON.parse(sessionData);
+
+        // Self-heal: Check if order has already been created for this session
+        const createdKey = `order-created:${sessionId}`;
+        const isCreated = await redis.get(createdKey);
+
+        if (!isCreated) {
+            console.log(`[Order] Order not marked as created for session ${sessionId}. Checking Stripe...`);
+            try {
+                // Search for Stripe PaymentIntent matching this sessionId
+                const searchResults = await stripe.paymentIntents.search({
+                    query: `metadata['sessionId']:'${sessionId}'`,
+                });
+                
+                const paymentIntent = searchResults.data[0];
+                if (paymentIntent && paymentIntent.status === "succeeded") {
+                    console.log(`[Order] Found succeeded Stripe PaymentIntent ${paymentIntent.id} for session ${sessionId}. Self-healing order creation...`);
+                    const userId = paymentIntent.metadata.userId || session.userId;
+                    await processOrderCreation(userId, sessionId, "Stripe");
+                }
+            } catch (stripeError) {
+                console.error("[Order] Stripe session self-healing check failed:", stripeError);
+            }
+        }
+
+        return res.status(200).json({ success: true, session });
     } catch (error) {
         return next(error)
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import useSidebar from "@/hooks/useSidebar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import Box from "../box";
 import { Sidebar } from "./sidebar.styles";
@@ -9,6 +9,8 @@ import Link from "next/link";
 import useSeller from "@/hooks/useSeller";
 import Logo from "@/assets/svgs/logo";
 import SidebarItem from "./sidebar.item";
+import axiosInstance from "@/utils/axiosInstance";
+import toast from "react-hot-toast";
 import {
   BellPlus,
   BellRing,
@@ -28,11 +30,23 @@ import SidebarMenu from "./sidebar.menu";
 const SideBarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
+  const router = useRouter();
   const { seller } = useSeller();
 
   useEffect(() => {
     setActiveSidebar(pathName);
   }, [pathName, setActiveSidebar]);
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.get("/api/logout");
+      toast.success("Logged out successfully");
+      router.push("/login");
+    } catch (error: any) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
   const getIconColor = (path: string) => {
     return activeSidebar === path ? "#0085ff" : "#969696";
@@ -196,8 +210,7 @@ const SideBarWrapper = () => {
                 icon={
                   <LogOut size={20} color={getIconColor("/dashboard/logout")} />
                 }
-                isActive={activeSidebar === "/dashboard/logout"}
-                href="/dashboard/logout"
+                onClick={handleLogout}
               />
             </SidebarMenu>
           </div>

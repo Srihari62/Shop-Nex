@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import countries from "@/utils/countries";
@@ -27,6 +27,7 @@ const Signup = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [sellerData, setSellerData] = useState<FormData | null>(null);
   const [sellerId, setSellerId] = useState("");
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const {
@@ -118,6 +119,7 @@ const Signup = () => {
 
   const connectStripe = async () => {
     try {
+      setIsConnectingStripe(true);
       console.log(sellerId, "SellerId");
       if (!sellerId) {
         toast.error("Seller ID is missing. Please restart signup.");
@@ -139,6 +141,8 @@ const Signup = () => {
           error.message ||
           "Failed to connect to Stripe"
       );
+    } finally {
+      setIsConnectingStripe(false);
     }
   };
 
@@ -360,9 +364,19 @@ const Signup = () => {
             <br />
             <button
               onClick={connectStripe}
-              className="w-full m-auto flex items-center justify-center gap-3 text-lg bg-[#334155] text-white py-2 rounded-lg"
+              disabled={isConnectingStripe}
+              className="w-full m-auto flex items-center justify-center gap-3 text-lg bg-[#334155] text-white py-2 rounded-lg disabled:opacity-50"
             >
-              Connect <StripeLogo />
+              {isConnectingStripe ? (
+                <>
+                  <Loader2 className="animate-spin w-5 h-5" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  Connect <StripeLogo />
+                </>
+              )}
             </button>
           </div>
         )}
