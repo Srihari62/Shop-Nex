@@ -322,7 +322,7 @@ export const verifySellerOtp = async (
         )
       );
     }
-    const existingSeller = await prisma.users.findUnique({
+    const existingSeller = await prisma.sellers.findUnique({
       where: { email },
     });
     if (existingSeller) {

@@ -9,6 +9,7 @@ import axios, { AxiosError } from "axios";
 import countries from "@/utils/countries";
 import CreateShop from "../../shared/modules/auth/create-shop";
 import StripeLogo from "@/assets/svgs/stripe-logo";
+import toast from "react-hot-toast";
 
 // type FormData = {
 //   name: string;
@@ -118,15 +119,26 @@ const Signup = () => {
   const connectStripe = async () => {
     try {
       console.log(sellerId, "SellerId");
+      if (!sellerId) {
+        toast.error("Seller ID is missing. Please restart signup.");
+        return;
+      }
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
         { sellerId }
       );
       if (response.data.url) {
         window.location.href = response.data.url;
+      } else {
+        toast.error("Stripe link generation failed: URL not received");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error connecting to Stripe:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to connect to Stripe"
+      );
     }
   };
 

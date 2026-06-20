@@ -13,7 +13,7 @@ model images {
   url       String
   products  products? @relation(fields: [productId], references: [id])
   productId String?   @db.ObjectId
-  user      users?    @relation("UserAvatar")
+  user      users[]   @relation("UserAvatar")
   shops     shops[]   @relation("ShopAvatar")
 }
 
@@ -24,7 +24,7 @@ model users {
   role        String        @default("user")
   password    String?
   following   String[]
-  avatarId    String?       @unique @db.ObjectId
+  avatarId    String?       @db.ObjectId
   avatar      images?       @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

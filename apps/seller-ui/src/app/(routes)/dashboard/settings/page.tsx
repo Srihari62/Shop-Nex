@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import useSeller from "@/hooks/useSeller";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 type Tab = "General" | "Custom Domains" | "Withdraw Method";
 
@@ -25,6 +26,35 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("General");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
+
+  const connectStripe = async () => {
+    try {
+      setIsConnectingStripe(true);
+      if (!seller?.id) {
+        toast.error("Seller ID is missing.");
+        return;
+      }
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/create-stripe-link`,
+        { sellerId: seller.id }
+      );
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        toast.error("Stripe link generation failed: URL not received");
+      }
+    } catch (error: any) {
+      console.error("Error connecting to Stripe:", error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to connect to Stripe"
+      );
+    } finally {
+      setIsConnectingStripe(false);
+    }
+  };
 
   const handleDeleteShop = async () => {
     setIsDeleting(true);
@@ -205,7 +235,10 @@ const SettingsPage = () => {
                       <p className="text-emerald-500 font-black">ACTIVE</p>
                     </div>
                   </div>
-                  <button className="mt-10 flex items-center gap-2 text-blue-500 font-black text-xs uppercase tracking-widest hover:text-blue-400 transition-colors group">
+                  <button 
+                    onClick={() => window.open("https://dashboard.stripe.com", "_blank")}
+                    className="mt-10 flex items-center gap-2 text-blue-500 font-black text-xs uppercase tracking-widest hover:text-blue-400 transition-colors group"
+                  >
                     Open Stripe Dashboard
                     <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </button>
@@ -219,8 +252,12 @@ const SettingsPage = () => {
                   <p className="text-slate-500 max-w-xs mb-10 font-medium">
                     Connect your Stripe account to start receiving payouts for your sales.
                   </p>
-                  <button className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-[10px] px-12 py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20">
-                    Connect Stripe Account
+                  <button 
+                    onClick={connectStripe}
+                    disabled={isConnectingStripe}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] text-[10px] px-12 py-5 rounded-2xl transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50"
+                  >
+                    {isConnectingStripe ? "Connecting..." : "Connect Stripe Account"}
                   </button>
                 </div>
               )}
