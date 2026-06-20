@@ -27,7 +27,7 @@ interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBack: () => void;
-  onComplete: (method: string) => void;
+  onComplete: (method: string, paymentIntentId?: string) => void;
   sessionId: string | null;
   sessionData: any;
   totalAmount: number;
@@ -209,7 +209,7 @@ const PaymentModal = ({
                   <StripePaymentForm
                     totalAmount={totalAmount}
                     sessionId={sessionId!}
-                    onSuccess={() => onComplete("Stripe Card")}
+                    onSuccess={(piId) => onComplete("Stripe Card", piId)}
                   />
                 </Elements>
               ) : (

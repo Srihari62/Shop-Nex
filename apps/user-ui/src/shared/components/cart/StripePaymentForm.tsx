@@ -10,7 +10,7 @@ import { Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface StripePaymentFormProps {
-  onSuccess: () => void;
+  onSuccess: (paymentIntentId?: string) => void;
   totalAmount: number;
   sessionId: string;
 }
@@ -52,7 +52,7 @@ const StripePaymentForm = ({ onSuccess, totalAmount, sessionId }: StripePaymentF
       setIsProcessing(false);
     } else if (paymentIntent && paymentIntent.status === "succeeded") {
       toast.success("Payment successful!");
-      onSuccess();
+      onSuccess(paymentIntent.id);
     }
   };
 

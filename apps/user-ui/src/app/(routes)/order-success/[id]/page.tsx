@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import { 
   CheckCircle2, 
@@ -20,6 +20,7 @@ import { useStore } from "@/store";
 const OrderSuccessPage = () => {
   const { id } = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { clearCart } = useStore();
@@ -27,7 +28,9 @@ const OrderSuccessPage = () => {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await axiosInstance.get(`/order/api/verify-payment-session?sessionId=${id}`);
+        const paymentIntentId = searchParams.get("payment_intent");
+        const url = `/order/api/verify-payment-session?sessionId=${id}${paymentIntentId ? `&paymentIntentId=${paymentIntentId}` : ""}`;
+        const res = await axiosInstance.get(url);
         setSession(res.data.session);
         // Clear cart immediately once we verify the session was successful
         clearCart();
@@ -39,7 +42,7 @@ const OrderSuccessPage = () => {
     };
 
     if (id) fetchSession();
-  }, [id, clearCart]);
+  }, [id, clearCart, searchParams]);
 
   if (loading) {
     return (

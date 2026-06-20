@@ -142,14 +142,15 @@ const CartPage = () => {
     }
   };
 
-  const handlePaymentComplete = (method: string) => {
+  const handlePaymentComplete = (method: string, paymentIntentId?: string) => {
     setIsPaymentOpen(false);
     toast.success(`Order placed successfully with ${method}!`);
     // NOTE: clearCart is now handled in the OrderSuccessPage to prevent UI flash
     
     // Redirect to success page
     if (sessionId) {
-      router.push(`/order-success/${sessionId}`);
+      const targetUrl = `/order-success/${sessionId}${paymentIntentId ? `?payment_intent=${paymentIntentId}` : ""}`;
+      router.push(targetUrl);
     }
   };
 

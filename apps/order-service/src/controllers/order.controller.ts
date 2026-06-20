@@ -298,6 +298,7 @@ export const createPaymentSession = async (req: any, res: Response, next: NextFu
 export const verifyPaymentSession = async (req: any, res: Response, next: NextFunction) => {
     try {
         const sessionId = req.query.sessionId as string;
+        const paymentIntentId = req.query.paymentIntentId as string;
         const sessionData = await redis.get(`payment-session:${sessionId}`);
         if (!sessionData) return res.status(404).json({ message: "Session expired" });
 
@@ -310,12 +311,18 @@ export const verifyPaymentSession = async (req: any, res: Response, next: NextFu
         if (!isCreated) {
             console.log(`[Order] Order not marked as created for session ${sessionId}. Checking Stripe...`);
             try {
-                // Search for Stripe PaymentIntent matching this sessionId
-                const searchResults = await stripe.paymentIntents.search({
-                    query: `metadata['sessionId']:'${sessionId}'`,
-                });
-                
-                const paymentIntent = searchResults.data[0];
+                let paymentIntent;
+                if (paymentIntentId) {
+                    console.log(`[Order] Direct lookup for Stripe PaymentIntent: ${paymentIntentId}`);
+                    paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+                } else {
+                    console.log(`[Order] Searching Stripe for session: ${sessionId}`);
+                    const searchResults = await stripe.paymentIntents.search({
+                        query: `metadata['sessionId']:'${sessionId}'`,
+                    });
+                    paymentIntent = searchResults.data[0];
+                }
+
                 if (paymentIntent && paymentIntent.status === "succeeded") {
                     console.log(`[Order] Found succeeded Stripe PaymentIntent ${paymentIntent.id} for session ${sessionId}. Self-healing order creation...`);
                     const userId = paymentIntent.metadata.userId || session.userId;
